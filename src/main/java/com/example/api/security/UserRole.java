@@ -7,16 +7,22 @@ import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public enum UserRole {
-    MEMBER(Sets.newHashSet()),
+    MEMBER(Sets.newHashSet(UserPermission.TASK_READ)),
     LEADER(Sets.newHashSet(
             UserPermission.TEAM_CREATE,
             UserPermission.TEAM_DELETE,
             UserPermission.USER_INVITE,
             UserPermission.USER_KICK,
             UserPermission.TASK_ASSIGN,
-            UserPermission.USER_GET
+            UserPermission.USER_READ,
+            UserPermission.TASK_READ,
+            UserPermission.TEAM_MEMBER_READ,
+            UserPermission.TEAM_READ,
+            UserPermission.TASK_CREATE
             )),
-    TEMPLEADER(Sets.newHashSet(UserPermission.TASK_ASSIGN));
+    TEMP_LEADER(Sets.newHashSet(UserPermission.TASK_ASSIGN,
+            UserPermission.TEAM_MEMBER_READ,
+            UserPermission.TASK_READ));
 
     private final Set<UserPermission> permissions;
 

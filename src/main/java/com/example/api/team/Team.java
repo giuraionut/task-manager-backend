@@ -6,13 +6,19 @@ import java.util.List;
 
 public class Team {
     private final Integer teamId;
+    private final String teamName;
     private final List<User> members;
     private final User leader;
 
-    public Team(Integer teamId, List<User> members, User leader) {
+    public Team(Integer teamId, String teamName, List<User> members, User leader) {
         this.teamId = teamId;
+        this.teamName = teamName;
         this.members = members;
         this.leader = leader;
+    }
+
+    public String getTeamName() {
+        return teamName;
     }
 
     public Integer getTeamId() {
