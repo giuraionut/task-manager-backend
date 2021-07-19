@@ -1,39 +1,23 @@
 package com.example.api.task;
 
 import com.example.api.user.User;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Data
+@Document(collection = "task")
 public class Task {
-    private final Integer taskId;
-    private final String taskName;
-    private final String taskDetails;
-    private final User taskCreator;
+    @Id
+    private String id;
 
+    private String taskName;
+    private String taskDetails;
+    private User emitter;
 
-    public Task(Integer taskId, String taskName, String taskDetails, User taskCreator) {
-        this.taskId = taskId;
+    public Task(String taskName, String taskDetails, User emitter) {
         this.taskName = taskName;
         this.taskDetails = taskDetails;
-        this.taskCreator = taskCreator;
-    }
-
-    public Integer getTaskId() {
-        return taskId;
-    }
-
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public String getTaskDetails() {
-        return taskDetails;
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "taskId=" + taskId +
-                ", taskName='" + taskName + '\'' +
-                ", taskDetails='" + taskDetails + '\'' +
-                '}';
+        this.emitter = emitter;
     }
 }

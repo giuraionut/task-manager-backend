@@ -1,35 +1,28 @@
 package com.example.api.team;
 
+
 import com.example.api.user.User;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Data
+@Document(collection = "team")
 public class Team {
-    private final Integer teamId;
-    private final String teamName;
-    private final List<User> members;
-    private final User leader;
 
-    public Team(Integer teamId, String teamName, List<User> members, User leader) {
-        this.teamId = teamId;
+    @Id
+    private String id;
+
+    private String teamName;
+    private User teamLeader;
+    private List<User> teamMembers;
+
+    public Team(String teamName, User teamLeader, List<User> teamMembers) {
         this.teamName = teamName;
-        this.members = members;
-        this.leader = leader;
+        this.teamLeader = teamLeader;
+        this.teamMembers = teamMembers;
     }
 
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public Integer getTeamId() {
-        return teamId;
-    }
-
-    public List<User> getMembers() {
-        return members;
-    }
-
-    public User getLeader() {
-        return leader;
-    }
 }
