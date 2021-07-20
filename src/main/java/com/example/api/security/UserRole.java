@@ -16,7 +16,10 @@ public enum UserRole {
             UserPermission.TASK_CREATE,
             UserPermission.TASK_DELETE,
             UserPermission.TASK_EDIT,
-            UserPermission.TASK_ASSIGN)),
+            UserPermission.TASK_ASSIGN,
+            UserPermission.TASK_OPEN,
+            UserPermission.TASK_CLOSE)),
+    MEMBER(Sets.newHashSet(UserPermission.TASK_CLOSE))
     ;
 
     private final Set<UserPermission> permissions;

@@ -18,14 +18,16 @@ public class TaskController {
     private final TaskService taskService;
     private final UserService userService;
 
-    @PostMapping(path = "new")
+    @PostMapping(path = "new/{emitterId}")
     @PreAuthorize("hasAuthority('task:create')")
-    public ResponseEntity<Object> newTask(@RequestBody Task task) {
+    public ResponseEntity<Object> newTask(@RequestBody Task task, @PathVariable("emitterId") String emitterId) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.CREATED);
         response.setError("none");
         response.setMessage("Task created successfully");
+        task.setEmitterId(emitterId);
+        task.setOpen(true);
         this.taskService.createTask(task);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -58,11 +60,11 @@ public class TaskController {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
-        if (taskService.exists(taskId)) {
+        if (this.taskService.exists(taskId)) {
             response.setStatus(HttpStatus.OK);
             response.setError("none");
             response.setMessage("Task edited successfully");
-            taskService.editTask(task, taskId);
+            this.taskService.editTask(task, taskId);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } else {
@@ -76,19 +78,67 @@ public class TaskController {
     @PostMapping(path = "assign/{taskId}/{userId}")
     @PreAuthorize("hasAuthority('task:assign')")
     public ResponseEntity<Object> assignTask(@PathVariable("taskId") String taskId, @PathVariable("userId") String userId) {
+
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
-
-        if (taskService.exists(taskId) && userService.exists(userId)) {
+        if (this.taskService.exists(taskId) && this.userService.exists(userId)) {
             response.setStatus(HttpStatus.OK);
             response.setError("none");
             response.setMessage("Task assigned successfully");
-            taskService.assignTask(taskId, userId);
+            this.taskService.assignTask(taskId, userId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setStatus(HttpStatus.NOT_FOUND);
             response.setError("not found");
             response.setMessage("Task or user does not exists");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping(path = "close/{taskId}/{closedById}")
+    @PreAuthorize("hasAuthority('task:close')")
+    public ResponseEntity<Object> closeTask(@PathVariable("taskId") String taskId, @PathVariable("closedById") String closedById)
+    {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+
+        if(this.taskService.exists(taskId))
+        {
+            response.setStatus(HttpStatus.OK);
+            response.setError("none");
+            response.setMessage("Task closed successfully");
+            this.taskService.closeTask(taskId, closedById);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        else
+        {
+            response.setStatus(HttpStatus.NOT_FOUND);
+            response.setError("not found");
+            response.setMessage("Task with id " + taskId + " does not exists!");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping(path = "open/{taskId}/{openById}")
+    @PreAuthorize("hasAuthority('task:open')")
+    public ResponseEntity<Object> openTask(@PathVariable("taskId") String taskId, @PathVariable("openById") String openById)
+    {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+
+        if(this.taskService.exists(taskId))
+        {
+            response.setStatus(HttpStatus.OK);
+            response.setError("none");
+            response.setMessage("Task opened successfully");
+            this.taskService.openTask(taskId, openById);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        else
+        {
+            response.setStatus(HttpStatus.NOT_FOUND);
+            response.setError("not found");
+            response.setMessage("Task with id " + taskId + " does not exists!");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }

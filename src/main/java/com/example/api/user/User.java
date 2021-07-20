@@ -31,7 +31,7 @@ public class User implements UserDetails {
 
     private String teamId;
 
-    private List<String> tasksId;
+    private Set<String> tasksId;
     private LocalDate birthDate;
     private String avatar;
     private Set<? extends GrantedAuthority> grantedAuthorities;

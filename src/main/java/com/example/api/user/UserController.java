@@ -28,7 +28,7 @@ public class UserController {
         } else {
             response.setMessage("Registration successfully");
             response.setError("none");
-            this.userService.register(newUser);
+            this.userService.add(newUser);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
 

@@ -10,7 +10,9 @@ public enum UserPermission {
     TASK_CREATE("task:create"),
     TASK_DELETE("task:delete"),
     TASK_EDIT("task:edit"),
-    TASK_ASSIGN("task:assign");
+    TASK_ASSIGN("task:assign"),
+    TASK_CLOSE("task:close"),
+    TASK_OPEN("task:open");
 
 
     private final String permission;

@@ -3,9 +3,12 @@ package com.example.api.team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TeamService {
@@ -34,11 +37,27 @@ public class TeamService {
         return this.teamRepository.findById(teamId).orElseThrow(() -> new IllegalStateException("Team with id " + teamId + " does not exists!"));
     }
 
+    @Transactional
+    public void deleteTeam(String teamId)
+    {
+        this.teamRepository.deleteById(teamId);
+    }
+
+    @Transactional
     public void addMembers(String teamId, String userId) {
         Team team = getTeam(teamId);
-        List<String> teamMembersId = new ArrayList<>();
+        Set<String> teamMembersId = team.getTeamMembersId();
         teamMembersId.add(userId);
         team.setTeamMembersId(teamMembersId);
-        teamRepository.save(team);
+        this.teamRepository.save(team);
+    }
+
+    @Transactional
+    public void removeMembers(String teamId, String userId) {
+        Team team = getTeam(teamId);
+        Set<String> teamMembersId = team.getTeamMembersId();
+        teamMembersId.remove(userId);
+        team.setTeamMembersId(teamMembersId);
+        this.teamRepository.save(team);
     }
 }

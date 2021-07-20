@@ -26,7 +26,7 @@ public class TeamController {
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
 
-        if (teamService.nameExists(team.getTeamName())) {
+        if (this.teamService.nameExists(team.getTeamName())) {
             response.setMessage("Team with name " + "'" + team.getTeamName() + "'" + " already exists");
             response.setError("duplicate found");
         } else {
@@ -41,6 +41,30 @@ public class TeamController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping(path = "delete/{teamId}")
+    @PreAuthorize("hasAuthority('team:delete')")
+    public ResponseEntity<Object> deleteTeam(String teamId)
+    {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+
+        if(this.teamService.exists(teamId))
+        {
+            this.teamService.deleteTeam(teamId);
+            response.setMessage("Team delete successfully");
+            response.setStatus(HttpStatus.NO_CONTENT);
+            response.setError("none");
+            return new ResponseEntity<>(response,HttpStatus.NO_CONTENT);
+        }
+        else
+        {
+            response.setStatus(HttpStatus.NOT_FOUND);
+            response.setMessage("Team with id " + teamId + " does not exists!");
+            response.setError("not found");
+            return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping(path = "add/{teamId}/{userId}")
     @PreAuthorize("hasAuthority('team:invite')")
     public ResponseEntity<Object> addUser(@PathVariable("teamId") String teamId, @PathVariable("userId") String userId) {
@@ -53,6 +77,7 @@ public class TeamController {
             response.setStatus(HttpStatus.OK);
             response.setError("none");
             response.setMessage("User added successfully");
+            this.userService.setGrantedAuthorities(userId,UserRole.MEMBER.getGrantedAuthorities());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setStatus(HttpStatus.NOT_FOUND);
@@ -63,21 +88,23 @@ public class TeamController {
     }
 
     @PostMapping(path = "kick/{teamId}/{userId}")
-    @PreAuthorize("hasAuthority('team:invite')")
+    @PreAuthorize("hasAuthority('team:kick')")
     public ResponseEntity<Object> kickUser(@PathVariable("teamId") String teamId, @PathVariable("userId") String userId) {
 
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
         if (this.userService.exists(userId) && this.teamService.exists(teamId)) {
-
-            Team team = teamService.getTeam(teamId);
             this.userService.deleteTeam(userId);
+            this.teamService.removeMembers(teamId, userId);
             response.setStatus(HttpStatus.OK);
             response.setError("none");
+            response.setMessage("User kicked successfully");
+            this.userService.setGrantedAuthorities(userId,UserRole.USER.getGrantedAuthorities());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setStatus(HttpStatus.NOT_FOUND);
+            response.setMessage("User with id " + userId + " or team with id " + teamId + " does not exists!");
             response.setError("not found");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }

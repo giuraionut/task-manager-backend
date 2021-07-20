@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -47,7 +49,7 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findById(userId).isPresent();
     }
 
-    public void register(User newUser) {
+    public void add(User newUser) {
         newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
         newUser.setAccountNonExpired(true);
         newUser.setAccountNonLocked(true);
