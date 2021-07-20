@@ -7,22 +7,17 @@ import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public enum UserRole {
-    MEMBER(Sets.newHashSet(UserPermission.TASK_READ)),
+    USER(Sets.newHashSet(UserPermission.TEAM_CREATE)),
     LEADER(Sets.newHashSet(
             UserPermission.TEAM_CREATE,
             UserPermission.TEAM_DELETE,
-            UserPermission.USER_INVITE,
-            UserPermission.USER_KICK,
-            UserPermission.TASK_ASSIGN,
-            UserPermission.USER_READ,
-            UserPermission.TASK_READ,
-            UserPermission.TEAM_MEMBER_READ,
-            UserPermission.TEAM_READ,
-            UserPermission.TASK_CREATE
-            )),
-    TEMP_LEADER(Sets.newHashSet(UserPermission.TASK_ASSIGN,
-            UserPermission.TEAM_MEMBER_READ,
-            UserPermission.TASK_READ));
+            UserPermission.TEAM_INVITE,
+            UserPermission.TEAM_KICK,
+            UserPermission.TASK_CREATE,
+            UserPermission.TASK_DELETE,
+            UserPermission.TASK_EDIT,
+            UserPermission.TASK_ASSIGN)),
+    ;
 
     private final Set<UserPermission> permissions;
 
@@ -30,13 +25,12 @@ public enum UserRole {
         this.permissions = permissions;
     }
 
-    public Set<UserPermission> getPermissions(){
+    public Set<UserPermission> getPermissions() {
         return this.permissions;
     }
 
 
-    public Set<SimpleGrantedAuthority> getGrantedAuthorities()
-    {
+    public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
         Set<SimpleGrantedAuthority> permissions = getPermissions().stream()
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
                 .collect(Collectors.toSet());

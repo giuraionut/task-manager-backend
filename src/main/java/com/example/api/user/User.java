@@ -1,6 +1,4 @@
 package com.example.api.user;
-
-import com.example.api.team.Team;
 import lombok.Data;
 
 import org.springframework.data.annotation.Id;
@@ -11,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,6 +29,9 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String email;
 
+    private String teamId;
+
+    private List<String> tasksId;
     private LocalDate birthDate;
     private String avatar;
     private Set<? extends GrantedAuthority> grantedAuthorities;
@@ -39,13 +41,7 @@ public class User implements UserDetails {
     private boolean isEnabled;
 
 
-
-    public User(String username, String password, String firstName, String lastName, String gender, String email, LocalDate birthDate, String avatar
-                /*Set<? extends GrantedAuthority> grantedAuthorities,
-                boolean isAccountNonExpired,
-                boolean isAccountNonLocked,
-                boolean isCredentialsNonExpired,
-                boolean isEnabled*/) {
+    public User(String username, String password, String firstName, String lastName, String gender, String email, LocalDate birthDate, String avatar) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -54,11 +50,6 @@ public class User implements UserDetails {
         this.email = email;
         this.birthDate = birthDate;
         this.avatar = avatar;
-        /*this.grantedAuthorities = grantedAuthorities;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;*/
     }
 
     @Override

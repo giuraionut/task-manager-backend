@@ -13,11 +13,7 @@ public class Task {
 
     private String taskName;
     private String taskDetails;
-    private User emitter;
 
-    public Task(String taskName, String taskDetails, User emitter) {
-        this.taskName = taskName;
-        this.taskDetails = taskDetails;
-        this.emitter = emitter;
-    }
+    private String emitterId;
+
 }

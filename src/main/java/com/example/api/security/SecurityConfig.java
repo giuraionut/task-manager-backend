@@ -1,9 +1,10 @@
 package com.example.api.security;
 
-import com.example.api.auth.AppUserService;
+
 import com.example.api.jwt.JwtConfig;
 import com.example.api.jwt.JwtTokenVerifier;
 import com.example.api.jwt.JwtUserNameAndPasswordAuthenticationFilter;
+import com.example.api.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,13 +25,14 @@ import javax.crypto.SecretKey;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
-    private final AppUserService appUserService;
+    private final UserService userService;
     private final SecretKey secretKey;
     private final JwtConfig jwtConfig;
+
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder, AppUserService appUserService, SecretKey secretKey, JwtConfig jwtConfig) {
+    public SecurityConfig(PasswordEncoder passwordEncoder, UserService userService, SecretKey secretKey, JwtConfig jwtConfig) {
         this.passwordEncoder = passwordEncoder;
-        this.appUserService = appUserService;
+        this.userService = userService;
         this.secretKey = secretKey;
         this.jwtConfig = jwtConfig;
     }
@@ -46,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtUserNameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey))
                 .addFilterAfter(new JwtTokenVerifier(secretKey, jwtConfig), JwtUserNameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/", "index", "/css/*", "/js/*", "/api/user/register**").permitAll()
+                .antMatchers("/", "index", "/css/*", "/js/*", "/register", "/login").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -60,12 +62,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider()
-    {
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
         provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(appUserService);
+        provider.setUserDetailsService(userService);
         return provider;
     }
 

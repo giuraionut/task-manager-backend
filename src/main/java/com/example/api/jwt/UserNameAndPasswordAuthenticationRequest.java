@@ -1,19 +1,19 @@
 package com.example.api.jwt;
 
 public class UserNameAndPasswordAuthenticationRequest {
-    private String userName;
+    private String username;
     private String password;
 
     public UserNameAndPasswordAuthenticationRequest()
     {
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.username = userName;
     }
 
     public String getPassword() {
