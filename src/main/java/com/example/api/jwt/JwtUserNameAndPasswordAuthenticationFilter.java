@@ -1,5 +1,6 @@
 package com.example.api.jwt;
 
+import com.example.api.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -47,12 +49,11 @@ public class JwtUserNameAndPasswordAuthenticationFilter extends UsernamePassword
                     authenticationRequest.getUsername(),
                     authenticationRequest.getPassword()
             );
+            return authenticationManager.authenticate(authentication);
 
-            Authentication authenticate = authenticationManager.authenticate(authentication);
-            return authenticate;
 
         } catch (IOException e) {
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
 
         }
     }
@@ -61,16 +62,27 @@ public class JwtUserNameAndPasswordAuthenticationFilter extends UsernamePassword
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
+                                            Authentication authResult){
 
+        User user = (User) authResult.getPrincipal();
         String token = Jwts.builder()
                 .setSubject(authResult.getName())
                 .claim("authorities", authResult.getAuthorities())
-        .setIssuedAt(new Date())
-        .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtConfig.getTokenExpirationAfterDays())))
-        .signWith(secretKey)
-        .compact();
+                .claim("userId", user.getId())
+                .setIssuedAt(new Date())
+                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtConfig.getTokenExpirationAfterDays())))
+                .signWith(secretKey)
+                .compact();
 
-        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
+
+        Cookie jwtToken = new Cookie("jwtToken", token);
+        jwtToken.setSecure(false);
+        jwtToken.setDomain("localhost");
+        jwtToken.setPath("/");
+        jwtToken.setHttpOnly(true);
+        jwtToken.setMaxAge(86400);
+
+        response.addCookie(jwtToken);
+
     }
 }

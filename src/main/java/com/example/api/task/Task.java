@@ -9,10 +9,12 @@ public class Task {
     @Id
     private String id;
 
-    private String taskName;
-    private String taskDetails;
-    private boolean isOpen;
+    private String name;
+    private String details;
+    private boolean isOpen = true;
     private String lastUserId;
-    private String emitterId;
-
+    private String authorId;
+    private String responsibleId;
+    private boolean isAssigned = false;
+    private boolean isPrivate = false;
 }

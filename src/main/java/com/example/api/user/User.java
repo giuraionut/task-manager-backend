@@ -1,6 +1,6 @@
 package com.example.api.user;
-import lombok.Data;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -50,6 +49,9 @@ public class User implements UserDetails {
         this.email = email;
         this.birthDate = birthDate;
         this.avatar = avatar;
+    }
+
+    public User() {
     }
 
     @Override

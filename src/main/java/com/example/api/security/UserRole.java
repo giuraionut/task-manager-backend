@@ -7,7 +7,15 @@ import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public enum UserRole {
-    USER(Sets.newHashSet(UserPermission.TEAM_CREATE)),
+    USER(Sets.newHashSet(
+            UserPermission.TEAM_CREATE,
+            UserPermission.TASK_PRIVATE_CLOSE,
+            UserPermission.TASK_PRIVATE_CREATE,
+            UserPermission.TASK_PRIVATE_DELETE,
+            UserPermission.TASK_PRIVATE_DELETE,
+            UserPermission.TASK_PRIVATE_EDIT,
+            UserPermission.TASK_PRIVATE_CHANGE_STATUS
+    )),
     LEADER(Sets.newHashSet(
             UserPermission.TEAM_CREATE,
             UserPermission.TEAM_DELETE,
@@ -17,9 +25,13 @@ public enum UserRole {
             UserPermission.TASK_DELETE,
             UserPermission.TASK_EDIT,
             UserPermission.TASK_ASSIGN,
-            UserPermission.TASK_OPEN,
-            UserPermission.TASK_CLOSE)),
-    MEMBER(Sets.newHashSet(UserPermission.TASK_CLOSE))
+            UserPermission.TASK_CHANGE_STATUS)),
+    MEMBER(Sets.newHashSet(
+            UserPermission.TASK_PRIVATE_CHANGE_STATUS,
+            UserPermission.TASK_PRIVATE_CREATE,
+            UserPermission.TASK_PRIVATE_DELETE,
+            UserPermission.TASK_PRIVATE_DELETE,
+            UserPermission.TASK_PRIVATE_EDIT))
     ;
 
     private final Set<UserPermission> permissions;

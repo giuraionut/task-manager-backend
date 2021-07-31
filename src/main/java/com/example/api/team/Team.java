@@ -15,10 +15,9 @@ public class Team {
     private String id;
 
     @Indexed(unique = true)
-    private String teamName;
+    private String name;
 
-    @Indexed(unique = true)
-    private String teamLeaderId;
-    private Set<String> teamMembersId;
+    private String authorId;
+    private Set<String> membersId;
 
 }
