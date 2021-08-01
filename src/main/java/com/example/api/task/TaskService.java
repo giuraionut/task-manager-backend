@@ -129,11 +129,11 @@ public class TaskService {
     }
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
-    public void changeTaskStatus(String taskId, String modifiedById)
+    public Task changeTaskStatus(String taskId, String modifiedById)
     {
         Task task = getTask(taskId);
         task.setOpen(!task.isOpen());
         task.setLastUserId(modifiedById);
-        this.taskRepository.save(task);
+        return this.taskRepository.save(task);
     }
 }

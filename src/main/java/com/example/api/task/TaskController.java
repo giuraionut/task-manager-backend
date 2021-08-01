@@ -343,37 +343,32 @@ public class TaskController {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @PutMapping(path = "status/private/{taskId}/{modifiedById}")
+    @PutMapping(path = "status/private/{taskId}")
     @PreAuthorize("hasAuthority('task:private-change-status')")
-    public ResponseEntity<Object> changePrivateTaskStatus(@PathVariable("taskId") String taskId, @PathVariable("modifiedById") String modifiedById, HttpServletRequest request) {
+    public ResponseEntity<Object> changePrivateTaskStatus(@PathVariable("taskId") String taskId, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
         if (this.taskService.exists(taskId)) {
 
             Task task = this.taskService.getTask(taskId);
-
             String authorId = task.getAuthorId();
-            String responsibleId = task.getResponsibleId();
-
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
-            AuthorVerifier responsibleVerifier = new AuthorVerifier(request, secretKey, responsibleId);
             if (authorVerifier.isAuthor()) {
                 task.setLastUserId(authorId);
-            } else if (responsibleVerifier.isAuthor()) {
-                task.setLastUserId(responsibleId);
-            } else {
+                response.setPayload(this.taskService.changeTaskStatus(taskId, authorId).isOpen());
+                response.setStatus(HttpStatus.OK);
+                response.setError("none");
+                response.setMessage("Task status changed successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+
+            }
+             else {
                 response.setStatus(HttpStatus.FORBIDDEN);
                 response.setError("not authorized");
                 response.setMessage("You are not authorized to change the status of this task");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
-
-            response.setStatus(HttpStatus.OK);
-            response.setError("none");
-            response.setMessage("Task status changed successfully");
-            this.taskService.changeTaskStatus(taskId, modifiedById);
-            return new ResponseEntity<>(response, HttpStatus.OK);
 
         } else {
             response.setStatus(HttpStatus.NOT_FOUND);
