@@ -9,6 +9,7 @@ import java.util.Optional;
 @Repository(value = "task")
 public interface TaskRepository extends MongoRepository<Task, String> {
 
-    Optional<List<Task>> findTaskByAuthorId(String authorId);
+    Optional<List<Task>> findTaskByResponsibleId(String responsibleId);
+    Integer countByResponsibleIdAndIsPrivateAndIsOpen(String responsibleId, Boolean isPrivate, Boolean isOpen);
 
 }

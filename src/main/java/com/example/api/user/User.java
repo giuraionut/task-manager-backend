@@ -39,7 +39,6 @@ public class User implements UserDetails {
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
 
-
     public User(String username, String password, String firstName, String lastName, String gender, String email, LocalDate birthDate, String avatar) {
         this.username = username;
         this.password = password;

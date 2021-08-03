@@ -6,12 +6,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.crypto.SecretKey;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+
 
 
 @RestController
@@ -84,29 +84,18 @@ public class UserController {
 
     //------------------------------------------------------------------------------------------------------------------
     @GetMapping(path = "profile")
-    public ResponseEntity<Object> getUser(HttpServletRequest request) {
+    public ResponseEntity<Object> getProfile(HttpServletRequest request) {
 
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         if (this.userService.exists(authorVerifier.getRequesterId())) {
             User user = this.userService.getUserById(authorVerifier.getRequesterId());
-            User frontUser = new User();
-
-            frontUser.setUsername(user.getUsername());
-            frontUser.setFirstName(user.getFirstName());
-            frontUser.setLastName(user.getLastName());
-            frontUser.setEmail(user.getEmail());
-            frontUser.setGender(user.getGender());
-            frontUser.setTeamId(user.getTeamId());
-            frontUser.setTasksId(user.getTasksId());
-            frontUser.setAvatar(user.getAvatar());
-            frontUser.setBirthDate(user.getBirthDate());
-
+            user.setPassword(null);
             response.setMessage("User found");
             response.setStatus(HttpStatus.OK);
             response.setError("none");
-            response.setPayload(frontUser);
+            response.setPayload(user);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             response.setMessage("User does not exists");

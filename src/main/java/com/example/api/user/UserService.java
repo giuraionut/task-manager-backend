@@ -52,6 +52,7 @@ public class UserService implements UserDetailsService {
         newUser.setEnabled(true);
         newUser.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
         newUser.setTasksId(new HashSet<>());
+        newUser.setTeamId(null);
         this.userRepository.insert(newUser);
     }
     //------------------------------------------------------------------------------------------------------------------
