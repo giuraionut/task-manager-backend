@@ -77,9 +77,6 @@ public class TaskService {
         tasksId.add(taskId);
         assignedUser.setTasksId(tasksId);
         setTaskResponsible(taskId, userId);
-        System.out.println(assignedUser);
-        System.out.println(userId);
-        //this.userService.update(assignedUser);
     }//------------------------------------------------------------------------------------------------------------------
 
     public boolean exists(String taskId) {
@@ -102,15 +99,6 @@ public class TaskService {
     }
 
     public Integer countTasks(String responsibleId, String type, String state) {
-        if (type.equals("private")) {
-            if (state.equals("open")) {
-                return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, true, true);
-            }
-            return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, true, false);
-        }
-        if (state.equals("closed")) {
-            return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, false, false);
-        }
-        return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, false, true);
+        return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, type.equals("private"), state.equals("open"));
     }
 }

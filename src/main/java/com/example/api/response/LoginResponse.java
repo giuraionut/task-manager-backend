@@ -3,11 +3,9 @@ package com.example.api.response;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
 
 @Data
-public class Response {
-    private LocalDateTime timestamp;
+public class LoginResponse {
     private HttpStatus status;
     private String message;
     private String error;

@@ -1,13 +1,11 @@
 package com.example.api.team;
 
-import com.example.api.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -72,8 +70,7 @@ public class TeamService {
     }
     //------------------------------------------------------------------------------------------------------------------
 
-    public Set<String> getMembers(String teamId)
-    {
+    public Set<String> getMembers(String teamId) {
         Team team = getTeam(teamId);
         return team.getMembersId();
     }

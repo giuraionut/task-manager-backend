@@ -1,7 +1,5 @@
 package com.example.api.security;
 
-
-import com.example.api.jwt.AuthorVerifier;
 import com.example.api.jwt.JwtConfig;
 import com.example.api.jwt.JwtTokenVerifier;
 import com.example.api.jwt.JwtUserNameAndPasswordAuthenticationFilter;
