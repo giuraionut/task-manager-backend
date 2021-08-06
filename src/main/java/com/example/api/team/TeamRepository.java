@@ -8,4 +8,5 @@ import java.util.Optional;
 @Repository(value = "team")
 public interface TeamRepository extends MongoRepository<Team, String> {
     Optional<Team> findByName(String name);
+    Optional<Team> findByAuthorId(String authorId);
 }

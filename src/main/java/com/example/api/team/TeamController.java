@@ -94,58 +94,48 @@ public class TeamController {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @PostMapping(path = "invite/{teamId}/{userId}")
+    @PutMapping(path = "invite/{userId}")
     @PreAuthorize("hasAuthority('team:invite')")
-    public ResponseEntity<Object> inviteMember(@PathVariable("teamId") String teamId, @PathVariable("userId") String userId, HttpServletRequest request) {
+    public ResponseEntity<Object> inviteMember(@PathVariable("userId") String userId, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
-        if (this.userService.exists(userId) && this.teamService.exists(teamId)) {
-
-            String authorId = this.teamService.getTeam(teamId).getAuthorId();
-            AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+        String authorId = authorVerifier.getRequesterId();
+        if (this.userService.exists(userId)) {
+            Team team = this.teamService.getTeamByAuthor(authorId);
             response.setStatus(HttpStatus.OK);
-            if (authorVerifier.isAuthor()) {
-                this.userService.setTeamId(userId, teamId);
-                this.teamService.addMembers(teamId, userId);
+                this.userService.setTeamId(userId, team.getId());
+                this.teamService.addMembers(team, userId);
                 response.setError("none");
                 response.setMessage("User added successfully");
                 this.userService.setGrantedAuthorities(userId, UserRole.MEMBER.getGrantedAuthorities());
-            } else {
-                response.setError("not authorized");
-                response.setMessage("Can't assign users in other teams");
-            }
         } else {
             response.setError("not found");
-            response.setMessage("User with id " + userId + " or team with id " + teamId + " does not exists!");
+            response.setMessage("User with id " + userId + " does not exists!");
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @PostMapping(path = "kick/{teamId}/{userId}")
+    @PutMapping(path = "kick/{userId}")
     @PreAuthorize("hasAuthority('team:kick')")
-    public ResponseEntity<Object> kickUser(@PathVariable("teamId") String teamId, @PathVariable("userId") String userId, HttpServletRequest request) {
+    public ResponseEntity<Object> kickUser(@PathVariable("userId") String userId, HttpServletRequest request) {
 
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
-
-        if (this.userService.exists(userId) && this.teamService.exists(teamId)) {
-            String authorId = this.teamService.getTeam(teamId).getAuthorId();
-            AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+        String authorId = authorVerifier.getRequesterId();
+        Team team = this.teamService.getTeamByAuthor(authorId);
+        if (this.userService.exists(userId)){
             response.setStatus(HttpStatus.OK);
-            if (authorVerifier.isAuthor()) {
                 this.userService.deleteTeam(userId);
-                this.teamService.removeMembers(teamId, userId);
+                this.teamService.removeMembers(team, userId);
                 response.setError("none");
                 response.setMessage("User kicked successfully");
                 this.userService.setGrantedAuthorities(userId, UserRole.USER.getGrantedAuthorities());
-            } else {
-                response.setError("not authorized");
-                response.setMessage("Can't kick users from other teams");
-            }
         } else {
-            response.setMessage("User with id " + userId + " or team with id " + teamId + " does not exists!");
+            response.setMessage("User with id " + userId + " does not exists!");
             response.setError("not found");
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -162,6 +152,7 @@ public class TeamController {
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         String requesterId = authorVerifier.getRequesterId();
         User requester = this.userService.getUserById(requesterId);
+
         String teamId = requester.getTeamId();
         Team team = this.teamService.getTeam(teamId);
         Set<String> membersId = team.getMembersId();

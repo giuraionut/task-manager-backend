@@ -13,10 +13,12 @@ public class WebSocketConfiguration implements WebSocketConfigurer
 {
 
     private final static String CHAT_ENDPOINT = "/chat";
-
+    private final static String NOTIFICATION_ENDPOINT = "/notification";
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry.addHandler(getChatWebSocketHandler(), CHAT_ENDPOINT)
+                .setAllowedOrigins("*");
+        webSocketHandlerRegistry.addHandler(getNotificationWebSocketHandler(), NOTIFICATION_ENDPOINT)
                 .setAllowedOrigins("*");
     }
 
@@ -24,5 +26,11 @@ public class WebSocketConfiguration implements WebSocketConfigurer
     public WebSocketHandler getChatWebSocketHandler()
     {
         return new ChatWebSocketHandler();
+    }
+
+    @Bean
+    public WebSocketHandler getNotificationWebSocketHandler()
+    {
+        return new NotificationWebSocketHandler();
     }
 }

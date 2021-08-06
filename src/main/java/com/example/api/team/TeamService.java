@@ -48,8 +48,7 @@ public class TeamService {
 
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
-    public void addMembers(String teamId, String userId) {
-        Team team = getTeam(teamId);
+    public void addMembers(Team team, String userId) {
         Set<String> membersId = team.getMembersId();
         if (membersId.isEmpty()) {
             membersId = new HashSet<>();
@@ -61,8 +60,7 @@ public class TeamService {
 
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
-    public void removeMembers(String teamId, String userId) {
-        Team team = getTeam(teamId);
+    public void removeMembers(Team team, String userId) {
         Set<String> membersId = team.getMembersId();
         membersId.remove(userId);
         team.setMembersId(membersId);
@@ -73,5 +71,10 @@ public class TeamService {
     public Set<String> getMembers(String teamId) {
         Team team = getTeam(teamId);
         return team.getMembersId();
+    }
+
+    public Team getTeamByAuthor(String authorId)
+    {
+        return this.teamRepository.findByAuthorId(authorId).orElseThrow(() -> new IllegalStateException("Team with authorId " + authorId + " does not exists!"));
     }
 }
