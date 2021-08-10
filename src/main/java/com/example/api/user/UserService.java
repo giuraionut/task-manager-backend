@@ -24,6 +24,7 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -35,14 +36,17 @@ public class UserService implements UserDetailsService {
     public boolean emailExists(User user) {
         return this.userRepository.findUserByEmail(user.getEmail()).isPresent();
     }
+
     //------------------------------------------------------------------------------------------------------------------
     public boolean usernameExists(User user) {
         return this.userRepository.findUserByUsername(user.getUsername()).isPresent();
     }
+
     //------------------------------------------------------------------------------------------------------------------
     public boolean exists(String userId) {
         return this.userRepository.findById(userId).isPresent();
     }
+
     //------------------------------------------------------------------------------------------------------------------
     public void add(User newUser) {
         newUser.setPassword(this.passwordEncoder.encode(newUser.getPassword()));
@@ -55,12 +59,13 @@ public class UserService implements UserDetailsService {
         newUser.setTeamId(null);
         this.userRepository.insert(newUser);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
-    public void update(User user)
-    {
+    public void update(User user) {
         this.userRepository.save(user);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
     public void setTeamId(String userId, String teamId) {
@@ -68,6 +73,7 @@ public class UserService implements UserDetailsService {
         user.setTeamId(teamId);
         userRepository.save(user);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
     public void setGrantedAuthorities(String userId, Set<SimpleGrantedAuthority> authorities) {
@@ -75,16 +81,19 @@ public class UserService implements UserDetailsService {
         user.setGrantedAuthorities(authorities);
         userRepository.save(user);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     public void deleteTeam(String userId) {
         User user = getUserById(userId);
         user.setTeamId(null);
         userRepository.save(user);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     public User getUserById(String userId) {
         return this.userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User with id " + userId + " not found!"));
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
     public void changeName(User user, String userId) {
