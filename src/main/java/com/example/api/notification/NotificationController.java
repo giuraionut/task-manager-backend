@@ -22,7 +22,7 @@ public class NotificationController {
     private final SecretKey secretKey;
 
     @PostMapping()
-    public ResponseEntity<Object> post(@RequestBody Notification notification, HttpServletRequest request) {
+    public ResponseEntity<Object> post(@RequestBody TeamInvitation notification, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
@@ -39,7 +39,7 @@ public class NotificationController {
     //------------------------------------------------------------------------------------------------------------------
 
     @GetMapping()
-    public ResponseEntity<Object> get(HttpServletRequest request) {
+    public ResponseEntity<Object> getAll(HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
@@ -57,10 +57,9 @@ public class NotificationController {
     //------------------------------------------------------------------------------------------------------------------
 
     @DeleteMapping()
-    public ResponseEntity<Object> delete(HttpServletRequest request, @RequestBody Notification notification) {
+    public ResponseEntity<Object> delete(HttpServletRequest request, @RequestBody TeamInvitation notification) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
-        System.out.println(notification);
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, notification.getReceiverId());
         response.setError("none");
         response.setStatus(HttpStatus.OK);
@@ -70,6 +69,23 @@ public class NotificationController {
         } else {
             this.notificationService.delete(notification);
         }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "{id}")
+    public ResponseEntity<Object> getOne(HttpServletRequest request) {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+
+        response.setError("none");
+        response.setMessage("Notification obtained successfully");
+        response.setStatus(HttpStatus.OK);
+
+        List<Notification> notifications = this.notificationService.getAll(authorVerifier.getRequesterId());
+        response.setPayload(notifications);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

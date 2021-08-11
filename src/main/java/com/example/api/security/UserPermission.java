@@ -4,7 +4,7 @@ public enum UserPermission {
     //team---------------------
     TEAM_CREATE("team:create"),
     TEAM_DELETE("team:delete"),
-    TEAM_INVITE("team:invite"),
+    TEAM_ACCEPT("team:accept"),
     TEAM_KICK("team:kick"),
     TEAM_GET("team:get"),
     //task---------------------

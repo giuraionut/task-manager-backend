@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public enum UserRole {
     USER(Sets.newHashSet(
             UserPermission.TEAM_CREATE,
+            UserPermission.TEAM_ACCEPT,
             UserPermission.TASK_PRIVATE_CLOSE,
             UserPermission.TASK_PRIVATE_CREATE,
             UserPermission.TASK_PRIVATE_DELETE,
@@ -18,7 +19,6 @@ public enum UserRole {
     LEADER(Sets.newHashSet(
             UserPermission.TEAM_CREATE,
             UserPermission.TEAM_DELETE,
-            UserPermission.TEAM_INVITE,
             UserPermission.TEAM_KICK,
             UserPermission.TEAM_GET,
             UserPermission.TASK_CREATE,

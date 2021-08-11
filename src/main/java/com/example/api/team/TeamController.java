@@ -94,26 +94,24 @@ public class TeamController {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @PutMapping(path = "invite/{userId}")
-    @PreAuthorize("hasAuthority('team:invite')")
-    public ResponseEntity<Object> inviteMember(@PathVariable("userId") String userId, HttpServletRequest request) {
+    @PutMapping(path = "add/{teamId}")
+    @PreAuthorize("hasAuthority('team:accept')")
+    public ResponseEntity<Object> acceptInvitation(@PathVariable("teamId") String teamId, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-        String authorId = authorVerifier.getRequesterId();
-        if (this.userService.exists(userId)) {
-            Team team = this.teamService.getTeamByAuthor(authorId);
-            response.setStatus(HttpStatus.OK);
-                this.userService.setTeamId(userId, team.getId());
-                this.teamService.addMembers(team, userId);
-                response.setError("none");
-                response.setMessage("User added successfully");
-                this.userService.setGrantedAuthorities(userId, UserRole.MEMBER.getGrantedAuthorities());
-        } else {
-            response.setError("not found");
-            response.setMessage("User with id " + userId + " does not exists!");
-        }
+        String requesterId = authorVerifier.getRequesterId();
+
+        Team team = this.teamService.getTeam(teamId);
+
+        this.userService.setTeamId(requesterId, team.getId());
+        this.teamService.addMembers(team, requesterId);
+        response.setError("none");
+        response.setMessage("Invitation accepted successfully");
+        this.userService.setGrantedAuthorities(requesterId, UserRole.MEMBER.getGrantedAuthorities());
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -127,13 +125,13 @@ public class TeamController {
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         String authorId = authorVerifier.getRequesterId();
         Team team = this.teamService.getTeamByAuthor(authorId);
-        if (this.userService.exists(userId)){
+        if (this.userService.exists(userId)) {
             response.setStatus(HttpStatus.OK);
-                this.userService.deleteTeam(userId);
-                this.teamService.removeMembers(team, userId);
-                response.setError("none");
-                response.setMessage("User kicked successfully");
-                this.userService.setGrantedAuthorities(userId, UserRole.USER.getGrantedAuthorities());
+            this.userService.deleteTeam(userId);
+            this.teamService.removeMembers(team, userId);
+            response.setError("none");
+            response.setMessage("User kicked successfully");
+            this.userService.setGrantedAuthorities(userId, UserRole.USER.getGrantedAuthorities());
         } else {
             response.setMessage("User with id " + userId + " does not exists!");
             response.setError("not found");
@@ -174,4 +172,6 @@ public class TeamController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
 }
