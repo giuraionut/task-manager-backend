@@ -1,10 +1,8 @@
 package com.example.api.jwt;
 
 import com.example.api.response.LoginResponse;
-import com.example.api.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import io.jsonwebtoken.Jwts;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,25 +16,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Date;
 
 public class JwtUserNameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtConfig jwtConfig;
-    private final SecretKey secretKey;
-    private Gson gson = new Gson();
+    private final JwtTokenUtils jwtTokenUtils;
+    private final Gson gson = new Gson();
 
     public JwtUserNameAndPasswordAuthenticationFilter(
-            AuthenticationManager authenticationManager,
-            JwtConfig jwtConfig,
-            SecretKey secretKey) {
+            AuthenticationManager authenticationManager, JwtTokenUtils jwtTokenUtils) {
 
         this.authenticationManager = authenticationManager;
-        this.jwtConfig = jwtConfig;
-        this.secretKey = secretKey;
-
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
 
@@ -60,25 +51,13 @@ public class JwtUserNameAndPasswordAuthenticationFilter extends UsernamePassword
         }
     }
 
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) throws IOException {
+                                            Authentication authentication) throws IOException {
 
-        User user = (User) authResult.getPrincipal();
-        String token = Jwts.builder()
-                .setSubject(authResult.getName())
-                .claim("authorities", authResult.getAuthorities())
-                .claim("userId", user.getId())
-                .setIssuedAt(new Date())
-                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtConfig.getTokenExpirationAfterDays())))
-                .signWith(secretKey)
-                .compact();
-
-
-        Cookie jwtToken = new Cookie("jwtToken", token);
+        Cookie jwtToken = new Cookie("jwtToken", jwtTokenUtils.generateToken(authentication));
         jwtToken.setSecure(false);
         jwtToken.setDomain("localhost");
         jwtToken.setPath("/");

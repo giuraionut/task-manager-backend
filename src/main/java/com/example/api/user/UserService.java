@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -30,6 +31,16 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("Username %s not found", username)));
+    }
+
+    public User getByRefreshToken(String refreshToken) {
+        System.out.println(refreshToken);
+        return this.userRepository.findUserByRefreshToken(refreshToken).orElseThrow(() -> new IllegalStateException(String.format("Token %s invalid", refreshToken)));
+    }
+
+    public void newRefreshToken(User user) {
+        user.setRefreshToken(UUID.randomUUID().toString());
+        this.userRepository.save(user);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -57,6 +68,7 @@ public class UserService implements UserDetailsService {
         newUser.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
         newUser.setTasksId(new HashSet<>());
         newUser.setTeamId(null);
+        newUser.setRefreshToken(UUID.randomUUID().toString());
         this.userRepository.insert(newUser);
     }
 

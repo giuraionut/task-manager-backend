@@ -25,6 +25,9 @@ public class User implements UserDetails {
     private String lastName;
     private String gender;
 
+    @Indexed(sparse = true)
+    private String refreshToken;
+
     @Indexed(unique = true)
     private String email;
 

@@ -140,7 +140,7 @@ public class TeamController {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @GetMapping(path = "teamMembers")
+    @GetMapping(path = "members")
     @PreAuthorize("hasAuthority('team:get')")
     public ResponseEntity<Object> getMembersDetails(HttpServletRequest request) {
         Response response = new Response();

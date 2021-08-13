@@ -1,6 +1,7 @@
 package com.example.api.security;
 
 import com.example.api.jwt.JwtConfig;
+import com.example.api.jwt.JwtTokenUtils;
 import com.example.api.jwt.JwtTokenVerifier;
 import com.example.api.jwt.JwtUserNameAndPasswordAuthenticationFilter;
 import com.example.api.user.UserService;
@@ -32,14 +33,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final SecretKey secretKey;
-    private final JwtConfig jwtConfig;
+
+    private final JwtTokenUtils jwtTokenUtils;
 
     @Autowired
-    public SecurityConfig(PasswordEncoder passwordEncoder, UserService userService, SecretKey secretKey, JwtConfig jwtConfig) {
+    public SecurityConfig(PasswordEncoder passwordEncoder, UserService userService, SecretKey secretKey, JwtTokenUtils jwtTokenUtils) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.secretKey = secretKey;
-        this.jwtConfig = jwtConfig;
+
+        this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtUserNameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey))
+                .addFilter(new JwtUserNameAndPasswordAuthenticationFilter(authenticationManager(), jwtTokenUtils))
                 .addFilterAfter(new JwtTokenVerifier(secretKey), JwtUserNameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/**", "index", "/css/*", "/js/*", "/register").permitAll()
