@@ -27,15 +27,15 @@ public class TokenController {
         response.setTimestamp(LocalDateTime.now());
         response.setError("none");
         response.setStatus(HttpStatus.OK);
+
         String token = jwtTokenUtils.refreshToken(refreshToken.getRefreshToken());
-        System.out.println(token);
+
         Cookie newJwtToken = new Cookie("jwtToken", token);
         newJwtToken.setSecure(false);
         newJwtToken.setDomain("localhost");
         newJwtToken.setPath("/");
         newJwtToken.setHttpOnly(true);
         newJwtToken.setMaxAge(86400);
-
 
         HttpResponse.addCookie(newJwtToken);
         return new ResponseEntity<>(response, HttpStatus.OK);

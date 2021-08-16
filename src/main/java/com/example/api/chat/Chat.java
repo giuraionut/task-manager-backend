@@ -1,20 +1,18 @@
-package com.example.api.notification;
+package com.example.api.chat;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
-
 import java.time.LocalDateTime;
 
 @Data
-public class Notification {
-
+public class Chat {
     @Id
     private String id;
 
-    private String content;
+    private String message;
     private String senderId;
     private String receiverId;
-    private String type;
     private LocalDateTime timestamp;
+
 }

@@ -98,6 +98,7 @@ public class UserService implements UserDetailsService {
     public void deleteTeam(String userId) {
         User user = getUserById(userId);
         user.setTeamId(null);
+        user.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
         userRepository.save(user);
     }
 

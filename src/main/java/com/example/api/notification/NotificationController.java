@@ -22,13 +22,11 @@ public class NotificationController {
     private final SecretKey secretKey;
 
     @PostMapping()
-    public ResponseEntity<Object> post(@RequestBody TeamInvitation notification, HttpServletRequest request) {
+    public ResponseEntity<Object> post(@RequestBody TeamInvitation notification) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
 
-        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-        System.out.println(notification);
-        notification.setSenderId(authorVerifier.getRequesterId());
+
         response.setError("none");
         response.setMessage("Notification added successfully");
         response.setStatus(HttpStatus.OK);

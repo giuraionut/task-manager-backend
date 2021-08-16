@@ -63,6 +63,7 @@ public class TeamController {
         User leader = this.userService.getUserById(authorVerifier.getRequesterId());
         if (this.teamService.exists(leader.getTeamId())) {
             this.teamService.deleteTeam(leader.getTeamId());
+            this.userService.deleteTeam(leader.getId());
             response.setMessage("Team delete successfully");
             response.setError("none");
         } else {
@@ -131,7 +132,6 @@ public class TeamController {
             this.teamService.removeMembers(team, userId);
             response.setError("none");
             response.setMessage("User kicked successfully");
-            this.userService.setGrantedAuthorities(userId, UserRole.USER.getGrantedAuthorities());
         } else {
             response.setMessage("User with id " + userId + " does not exists!");
             response.setError("not found");

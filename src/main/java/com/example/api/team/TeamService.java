@@ -31,7 +31,9 @@ public class TeamService {
     //------------------------------------------------------------------------------------------------------------------
     public Team createTeam(Team team, String leaderId) {
         team.setAuthorId(leaderId);
-        team.setMembersId(new HashSet<>());
+        Set<String> membersId = new HashSet<>();
+        membersId.add(leaderId);
+        team.setMembersId(membersId);
         return this.teamRepository.insert(team);
     }
 
