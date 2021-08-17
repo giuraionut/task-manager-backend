@@ -91,6 +91,24 @@ public class UserController {
         if (this.userService.exists(authorVerifier.getRequesterId())) {
             User user = this.userService.getUserById(authorVerifier.getRequesterId());
             user.setPassword(null);
+            response.setMessage("Profile found");
+            response.setError("none");
+            response.setPayload(user);
+        } else {
+            response.setMessage("Profile does not exists");
+            response.setError("not found");
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "{userId}")
+    public ResponseEntity<Object> getUserInfo(@PathVariable("userId") String userId) {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+        if (this.userService.exists(userId)) {
+            User user = this.userService.getUserById(userId);
+            user.setPassword(null);
             response.setMessage("User found");
             response.setError("none");
             response.setPayload(user);
@@ -100,7 +118,5 @@ public class UserController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 
 }

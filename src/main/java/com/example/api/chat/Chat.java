@@ -14,5 +14,6 @@ public class Chat {
     private String senderId;
     private String receiverId;
     private LocalDateTime timestamp;
+    private String chatId;
 
 }
