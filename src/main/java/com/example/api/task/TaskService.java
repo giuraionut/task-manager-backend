@@ -1,15 +1,11 @@
 package com.example.api.task;
 
-import com.example.api.user.User;
-import com.example.api.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -17,30 +13,20 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserService userService;
 
     @Autowired
-    public TaskService(@Qualifier("task") TaskRepository taskRepository, UserService userService) {
+    public TaskService(@Qualifier("task") TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-        this.userService = userService;
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    public void createTask(Task task) {
-        this.taskRepository.insert(task);
-    }
-
-    public Task createPrivateTask(Task task, String userId) {
-
-        task.setLastUserId(userId);
-        task.setAuthorId(userId);
-        task.setResponsibleId(userId);
+    public Task createTask(Task task, String responsibleId, String authorId) {
+        task.setLastUserId(authorId);
+        task.setAuthorId(authorId);
+        task.setResponsibleId(responsibleId);
         task.setOpen(true);
-        task.setPrivate(true);
         task.setAssigned(true);
-        Task newTask = this.taskRepository.insert(task);
-        this.assignTask(newTask.getId(), userId);
-        return newTask;
+        return this.taskRepository.insert(task);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -56,28 +42,10 @@ public class TaskService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @Transactional
-    public void setTaskResponsible(String taskId, String userId) {
-        Task task = getTask(taskId);
-        task.setResponsibleId(userId);
-        this.taskRepository.save(task);
-    }
 
     //------------------------------------------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------------------------------------------
-    @Transactional
-    public void assignTask(String taskId, String userId) {
-        User assignedUser = this.userService.getUserById(userId);
-
-        Set<String> tasksId = assignedUser.getTasksId();
-        if (tasksId.isEmpty()) {
-            tasksId = new HashSet<>();
-        }
-        tasksId.add(taskId);
-        assignedUser.setTasksId(tasksId);
-        setTaskResponsible(taskId, userId);
-    }//------------------------------------------------------------------------------------------------------------------
 
     public boolean exists(String taskId) {
         return this.taskRepository.findById(taskId).isPresent();

@@ -28,6 +28,7 @@ public enum UserRole {
             UserPermission.TASK_CHANGE_STATUS,
             UserPermission.TASK_PRIVATE_CLOSE,
             UserPermission.TASK_PRIVATE_CREATE,
+            UserPermission.TASK_PUBLIC_CREATE,
             UserPermission.TASK_PRIVATE_DELETE,
             UserPermission.TASK_PRIVATE_EDIT,
             UserPermission.TASK_PRIVATE_CHANGE_STATUS)),

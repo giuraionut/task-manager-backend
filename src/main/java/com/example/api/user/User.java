@@ -32,8 +32,6 @@ public class User implements UserDetails {
     private String email;
 
     private String teamId;
-
-    private Set<String> tasksId;
     private LocalDate birthDate;
     private String avatar;
     private Set<? extends GrantedAuthority> grantedAuthorities;

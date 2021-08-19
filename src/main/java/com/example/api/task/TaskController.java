@@ -2,6 +2,8 @@ package com.example.api.task;
 
 import com.example.api.jwt.AuthorVerifier;
 import com.example.api.response.Response;
+import com.example.api.team.Team;
+import com.example.api.team.TeamService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,30 +22,7 @@ public class TaskController {
 
     private final TaskService taskService;
     private final SecretKey secretKey;
-
-    //------------------------------------------------------------------------------------------------------------------
-    @PostMapping(path = "new")
-    @PreAuthorize("hasAuthority('task:create')")
-    public ResponseEntity<Object> newTask(@RequestBody Task task, HttpServletRequest request) {
-
-        Response response = new Response();
-        response.setTimestamp(LocalDateTime.now());
-        response.setStatus(HttpStatus.OK);
-
-        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-        String requesterId = authorVerifier.getRequesterId();
-        if (requesterId != null) {
-            task.setAuthorId(requesterId);
-            task.setOpen(true);
-            this.taskService.createTask(task);
-            response.setError("none");
-            response.setMessage("Task created successfully");
-        } else {
-            response.setError("no requesterId");
-            response.setMessage("Requester ID not found");
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+    private final TeamService teamService;
 
     //------------------------------------------------------------------------------------------------------------------
     @DeleteMapping(path = "public")
@@ -57,7 +36,7 @@ public class TaskController {
         if (this.taskService.exists(task.getId())) {
             String authorId = this.taskService.getTask(task.getId()).getAuthorId();
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
-            if (authorVerifier.isAuthor()) {
+            if (authorVerifier.isValid()) {
                 response.setError("none");
                 response.setMessage("Task deleted successfully");
                 this.taskService.deleteTask(task);
@@ -74,7 +53,7 @@ public class TaskController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "public")
-    @PreAuthorize("hasAuthority('task:edit')")
+    @PreAuthorize("hasAuthority('task:public-edit')")
     public ResponseEntity<Object> editTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();
@@ -89,10 +68,10 @@ public class TaskController {
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
             AuthorVerifier responsibleVerifier = new AuthorVerifier(request, secretKey, responsibleId);
 
-            if (authorVerifier.isAuthor()) {
-                task.setLastUserId(authorId);
-            } else if (responsibleVerifier.isAuthor()) {
+            if (responsibleVerifier.isValid()) {
                 task.setLastUserId(responsibleId);
+            } else if (authorVerifier.isValid()) {
+                task.setLastUserId(authorId);
             } else {
                 response.setError("not authorized");
                 response.setMessage("You are not authorized to edit this task");
@@ -154,10 +133,40 @@ public class TaskController {
 
         String requesterId = authorVerifier.getRequesterId();
         if (requesterId != null) {
-            Task newTask = this.taskService.createPrivateTask(task, requesterId);
+            Task newTask = this.taskService.createTask(task, requesterId, requesterId);
             response.setError("none");
             response.setMessage("Task created successfully");
             response.setPayload(newTask);
+        } else {
+            response.setError("no requesterId");
+            response.setMessage("Requester ID not found");
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    @PostMapping(path = "public/{userId}")
+    @PreAuthorize("hasAuthority('task:public-create')")
+    public ResponseEntity<Object> newPublicTask(@RequestBody Task task, @PathVariable("userId") String userId, HttpServletRequest request) {
+
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+        String requesterId = authorVerifier.getRequesterId();
+        Team team = this.teamService.getTeamByAuthor(requesterId);
+
+        if (requesterId != null) {
+            if (team.getMembersId().contains(userId)) {
+                Task newTask = this.taskService.createTask(task, userId, requesterId);
+                response.setError("none");
+                response.setMessage("Task created successfully");
+                response.setPayload(newTask);
+            } else {
+                response.setError("wrong team member");
+                response.setMessage("Can't assign task to members from other teams");
+            }
         } else {
             response.setError("no requesterId");
             response.setMessage("Requester ID not found");
@@ -179,7 +188,7 @@ public class TaskController {
 
         if (taskService.exists(task.getId())) {
 
-            if (authorVerifier.isAuthor()) {
+            if (authorVerifier.isValid()) {
                 response.setError("none");
                 response.setMessage("Task deleted successfully");
                 taskService.deleteTask(task);
@@ -193,7 +202,7 @@ public class TaskController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    //fa delete public task
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "private")
     @PreAuthorize("hasAuthority('task:private-edit')")
@@ -210,7 +219,7 @@ public class TaskController {
             String authorId = originalTask.getAuthorId();
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
 
-            if (authorVerifier.isAuthor()) {
+            if (authorVerifier.isValid()) {
                 task.setLastUserId(authorId);
             } else {
                 response.setError("not authorized");

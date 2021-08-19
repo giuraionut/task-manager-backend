@@ -15,6 +15,7 @@ public enum UserPermission {
     TASK_CHANGE_STATUS("task:change-status"),
     //personal tasks-----------------------------
     TASK_PRIVATE_CREATE("task:private-create"),
+    TASK_PUBLIC_CREATE("task:public-create"),
     TASK_PRIVATE_CLOSE("task:private-close"),
     TASK_PRIVATE_DELETE("task:private-delete"),
     TASK_PRIVATE_CHANGE_STATUS("task:private-change-status"),

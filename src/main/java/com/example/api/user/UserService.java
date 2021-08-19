@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,11 +37,6 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findUserByRefreshToken(refreshToken).orElseThrow(() -> new IllegalStateException(String.format("Token %s invalid", refreshToken)));
     }
 
-    public void newRefreshToken(User user) {
-        user.setRefreshToken(UUID.randomUUID().toString());
-        this.userRepository.save(user);
-    }
-
     //------------------------------------------------------------------------------------------------------------------
     public boolean emailExists(User user) {
         return this.userRepository.findUserByEmail(user.getEmail()).isPresent();
@@ -66,7 +60,6 @@ public class UserService implements UserDetailsService {
         newUser.setCredentialsNonExpired(true);
         newUser.setEnabled(true);
         newUser.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
-        newUser.setTasksId(new HashSet<>());
         newUser.setTeamId(null);
         newUser.setRefreshToken(UUID.randomUUID().toString());
         this.userRepository.insert(newUser);

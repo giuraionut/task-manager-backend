@@ -62,7 +62,7 @@ public class NotificationController {
         response.setError("none");
         response.setStatus(HttpStatus.OK);
         response.setMessage("Notification dismissed successfully");
-        if (!authorVerifier.isAuthor()) {
+        if (!authorVerifier.isValid()) {
             response.setMessage("You can't access other people's notifications");
         } else {
             this.notificationService.delete(notification);

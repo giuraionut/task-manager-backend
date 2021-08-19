@@ -19,7 +19,7 @@ public class AuthorVerifier {
     private String requesterId;
     private String authorId;
     private SecretKey secretKey;
-    private boolean isAuthor;
+    private boolean isValid;
 
 
     public AuthorVerifier(HttpServletRequest request, SecretKey secretKey) {
@@ -47,12 +47,12 @@ public class AuthorVerifier {
         this.requesterId = (String) body.get("userId");
     }
 
-    public AuthorVerifier(HttpServletRequest request, SecretKey secretKey, String authorId) {
+    public AuthorVerifier(HttpServletRequest request, SecretKey secretKey, String userId) {
 
         Cookie[] cookies = request.getCookies();
 
         if (cookies.length == 0) {
-            this.isAuthor = false;
+            this.isValid = false;
         }
 
         String token = Arrays.stream(cookies)
@@ -61,7 +61,7 @@ public class AuthorVerifier {
                 .findFirst().map(Cookie::getValue).orElse(null);
 
         if (token == null) {
-            this.isAuthor = false;
+            this.isValid = false;
         }
 
         Jws<Claims> claimsJws = Jwts.parserBuilder()
@@ -73,10 +73,10 @@ public class AuthorVerifier {
 
         this.requesterId = (String) body.get("userId");
 
-        if (authorId == null) {
-            this.isAuthor = false;
+        if (requesterId == null) {
+            this.isValid = false;
         } else {
-            this.isAuthor = authorId.equals(this.requesterId);
+            this.isValid = userId.equals(this.requesterId);
         }
     }
 }
