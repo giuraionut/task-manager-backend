@@ -5,6 +5,7 @@ import com.example.api.response.Response;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
@@ -42,6 +43,7 @@ public class UserController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PostMapping(path = "signout")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> logout(HttpServletResponse HttpResponse) {
 
         Cookie jwtToken = new Cookie("jwtToken", null);
@@ -63,6 +65,7 @@ public class UserController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "name")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> changeName(@RequestBody User user, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -82,6 +85,7 @@ public class UserController {
 
     //------------------------------------------------------------------------------------------------------------------
     @GetMapping(path = "profile")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> getProfile(HttpServletRequest request) {
 
         Response response = new Response();
@@ -102,6 +106,7 @@ public class UserController {
     }
 
     @GetMapping(path = "{userId}")
+    @PreAuthorize("hasAuthority('ROLE_LEADER') or hasAuthority('ROLE_MEMBER')")
     public ResponseEntity<Object> getUserInfo(@PathVariable("userId") String userId) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());

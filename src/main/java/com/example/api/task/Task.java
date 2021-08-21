@@ -9,6 +9,8 @@ public class Task {
     @Id
     private String id;
 
+    private String teamId;
+
     private String name;
     private String details;
     private boolean isOpen = true;

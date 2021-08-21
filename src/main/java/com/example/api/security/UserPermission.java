@@ -7,19 +7,17 @@ public enum UserPermission {
     TEAM_ACCEPT("team:accept"),
     TEAM_KICK("team:kick"),
     TEAM_GET("team:get"),
-    //task---------------------
-    TASK_CREATE("task:create"),
-    TASK_DELETE("task:delete"),
-    TASK_EDIT("task:edit"),
-    TASK_ASSIGN("task:assign"),
-    TASK_CHANGE_STATUS("task:change-status"),
+    //task public---------------------
+    TASK_PUBLIC_CREATE("task:public-create"),
+    TASK_PUBLIC_DELETE("task:public-delete"),
+    TASK_PUBLIC_EDIT("task:public-edit"),
+    TASK_PUBLIC_GET("task:public-get"),
+    TASK_COUNT("task:count"),
     //personal tasks-----------------------------
     TASK_PRIVATE_CREATE("task:private-create"),
-    TASK_PUBLIC_CREATE("task:public-create"),
-    TASK_PRIVATE_CLOSE("task:private-close"),
     TASK_PRIVATE_DELETE("task:private-delete"),
-    TASK_PRIVATE_CHANGE_STATUS("task:private-change-status"),
-    TASK_PRIVATE_EDIT("task:private-edit");
+    TASK_PRIVATE_EDIT("task:private-edit"),
+    TASK_PRIVATE_GET("task:private-get");
 
     private final String permission;
 

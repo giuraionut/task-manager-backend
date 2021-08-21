@@ -29,7 +29,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PostMapping()
-    @PreAuthorize("hasAuthority('team:create')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> createTeam(@RequestBody Team team, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -54,7 +54,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @DeleteMapping()
-    @PreAuthorize("hasAuthority('team:delete')")
+    @PreAuthorize("hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> deleteTeam(HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -75,7 +75,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @GetMapping()
-    @PreAuthorize("hasAuthority('team:get')")
+    @PreAuthorize("hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> getTeam(HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -96,7 +96,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "add/{teamId}")
-    @PreAuthorize("hasAuthority('team:accept')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Object> acceptInvitation(@PathVariable("teamId") String teamId, HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -118,7 +118,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "kick/{userId}")
-    @PreAuthorize("hasAuthority('team:kick')")
+    @PreAuthorize("hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> kickUser(@PathVariable("userId") String userId, HttpServletRequest request) {
 
         Response response = new Response();
@@ -141,7 +141,7 @@ public class TeamController {
 
     //------------------------------------------------------------------------------------------------------------------
     @GetMapping(path = "members")
-    @PreAuthorize("hasAuthority('team:get')")
+    @PreAuthorize("hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> getMembersDetails(HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());

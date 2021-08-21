@@ -4,6 +4,8 @@ import com.example.api.jwt.AuthorVerifier;
 import com.example.api.response.Response;
 import com.example.api.team.Team;
 import com.example.api.team.TeamService;
+import com.example.api.user.User;
+import com.example.api.user.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +25,11 @@ public class TaskController {
     private final TaskService taskService;
     private final SecretKey secretKey;
     private final TeamService teamService;
+    private final UserService userService;
 
     //------------------------------------------------------------------------------------------------------------------
     @DeleteMapping(path = "public")
-    @PreAuthorize("hasAuthority('task:delete')")
+    @PreAuthorize("hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> deleteTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();
@@ -35,7 +38,9 @@ public class TaskController {
 
         if (this.taskService.exists(task.getId())) {
             String authorId = this.taskService.getTask(task.getId()).getAuthorId();
+
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
+
             if (authorVerifier.isValid()) {
                 response.setError("none");
                 response.setMessage("Task deleted successfully");
@@ -53,7 +58,7 @@ public class TaskController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "public")
-    @PreAuthorize("hasAuthority('task:public-edit')")
+    @PreAuthorize("hasAuthority('ROLE_LEADER') or hasAuthority('ROLE_MEMBER')")
     public ResponseEntity<Object> editTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();
@@ -67,6 +72,16 @@ public class TaskController {
 
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
             AuthorVerifier responsibleVerifier = new AuthorVerifier(request, secretKey, responsibleId);
+
+            if (responsibleVerifier.getRequesterId().equals(task.getResponsibleId()) &&
+                    (
+                            !originalTask.getName().equals(task.getName()) ||
+                                    !originalTask.getDetails().equals(task.getDetails())
+                    )) {
+                response.setError("not authorized");
+                response.setMessage("You can only close or open this task");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
 
             if (responsibleVerifier.isValid()) {
                 task.setLastUserId(responsibleId);
@@ -85,9 +100,11 @@ public class TaskController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     //------------------------------------------------------------------------------------------------------------------
 
     @GetMapping(path = "quantity/{type}/{state}")
+    @PreAuthorize("hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> countTasks(HttpServletRequest request, @PathVariable("type") String type, @PathVariable("state") String state) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
@@ -101,16 +118,17 @@ public class TaskController {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    @GetMapping(path = "{type}")
-    public ResponseEntity<Object> getTasks(HttpServletRequest request, @PathVariable("type") String type) {
+    @GetMapping(path = "private")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
+    public ResponseEntity<Object> getPrivateTasks(HttpServletRequest request) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-        List<Task> tasks = this.taskService.getTasks(authorVerifier.getRequesterId(), type);
+        List<Task> tasks = this.taskService.getPrivateTasks(authorVerifier.getRequesterId());
         if (!tasks.isEmpty()) {
-            response.setMessage("Tasks [" + type + "] obtained successfully");
+            response.setMessage("Tasks [private] obtained successfully");
             response.setError("none");
             response.setPayload(tasks);
         } else {
@@ -120,9 +138,30 @@ public class TaskController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    @GetMapping(path = "public")
+    @PreAuthorize("hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
+    public ResponseEntity<Object> getPublicTasks(HttpServletRequest request) {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+
+        String requesterId = authorVerifier.getRequesterId();
+        User user = this.userService.getUserById(requesterId);
+        String teamId = user.getTeamId();
+        List<Task> taskByTeam = this.taskService.getTaskByTeam(teamId);
+
+        response.setMessage("Team tasks obtained successfully");
+        response.setError("none");
+        response.setPayload(taskByTeam);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     //------------------------------------------------------------------------------------------------------------------
     @PostMapping(path = "private")
-    @PreAuthorize("hasAuthority('task:private-create')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> newPrivateTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();
@@ -146,7 +185,7 @@ public class TaskController {
 
     //------------------------------------------------------------------------------------------------------------------
     @PostMapping(path = "public/{userId}")
-    @PreAuthorize("hasAuthority('task:public-create')")
+    @PreAuthorize("hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> newPublicTask(@RequestBody Task task, @PathVariable("userId") String userId, HttpServletRequest request) {
 
         Response response = new Response();
@@ -176,7 +215,7 @@ public class TaskController {
 
     //------------------------------------------------------------------------------------------------------------------
     @DeleteMapping(path = "private")
-    @PreAuthorize("hasAuthority('task:private-delete')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> deletePrivateTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();
@@ -202,10 +241,10 @@ public class TaskController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    //fa delete public task
+
     //------------------------------------------------------------------------------------------------------------------
     @PutMapping(path = "private")
-    @PreAuthorize("hasAuthority('task:private-edit')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> editPrivateTask(@RequestBody Task task, HttpServletRequest request) {
 
         Response response = new Response();

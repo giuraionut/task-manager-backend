@@ -57,16 +57,19 @@ public class TaskService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    public List<Task> getTasks(String userId, String type) {
+    public List<Task> getPrivateTasks(String userId) {
+
         List<Task> tasksByUser = taskRepository.findTaskByResponsibleId(userId)
-                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " has no " + type + " tasks"));
-        if (type.equals("private")) {
-            return tasksByUser.stream().filter(Task::isPrivate).collect(Collectors.toList());
-        }
-        return tasksByUser.stream().filter(Predicate.not(Task::isPrivate)).collect(Collectors.toList());
+                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " has no private tasks"));
+
+        return tasksByUser.stream().filter(Task::isPrivate).collect(Collectors.toList());
     }
 
     public Integer countTasks(String responsibleId, String type, String state) {
         return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, type.equals("private"), state.equals("open"));
+    }
+
+    public List<Task> getTaskByTeam(String teamId) {
+        return this.taskRepository.findTaskByTeamId(teamId).orElseThrow(() -> new IllegalStateException("No tasks for team"));
     }
 }
