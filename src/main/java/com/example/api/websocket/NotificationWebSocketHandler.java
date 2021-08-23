@@ -20,10 +20,7 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        for(WebSocketSession webSocketSession: webSocketSessions)
-        {
-            System.out.println("Session: " + session);
-            //System.out.println("Message: " + message.getPayload());
+        for (WebSocketSession webSocketSession : webSocketSessions) {
             webSocketSession.sendMessage(message);
         }
     }

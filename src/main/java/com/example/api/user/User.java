@@ -35,6 +35,7 @@ public class User implements UserDetails {
     private LocalDate birthDate;
     private String avatar;
     private Set<? extends GrantedAuthority> grantedAuthorities;
+
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;

@@ -23,7 +23,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         for(WebSocketSession webSocketSession: webSocketSessions)
         {
-            System.out.println(message.getPayload());
             webSocketSession.sendMessage(message);
         }
     }

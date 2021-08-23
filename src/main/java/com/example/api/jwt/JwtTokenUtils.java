@@ -7,9 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 
 import javax.crypto.SecretKey;
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Date;
 
 @Configuration
 public class JwtTokenUtils {
@@ -18,7 +17,6 @@ public class JwtTokenUtils {
     private final UserService userService;
 
     public JwtTokenUtils(SecretKey secretKey, JwtConfig jwtConfig, UserService userService) {
-
         this.secretKey = secretKey;
         this.jwtConfig = jwtConfig;
         this.userService = userService;
@@ -27,6 +25,7 @@ public class JwtTokenUtils {
     public String generateToken(Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
+
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("authorities", authentication.getAuthorities())
@@ -37,9 +36,11 @@ public class JwtTokenUtils {
                 .compact();
     }
 
-
     public String refreshToken(String refreshToken) {
         User user = this.userService.getByRefreshToken(refreshToken);
+        if (user == null) {
+            return null;
+        }
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("authorities", user.getAuthorities())
@@ -49,5 +50,4 @@ public class JwtTokenUtils {
                 .signWith(secretKey)
                 .compact();
     }
-
 }

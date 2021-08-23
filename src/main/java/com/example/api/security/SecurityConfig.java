@@ -1,6 +1,5 @@
 package com.example.api.security;
 
-import com.example.api.jwt.JwtConfig;
 import com.example.api.jwt.JwtTokenUtils;
 import com.example.api.jwt.JwtTokenVerifier;
 import com.example.api.jwt.JwtUserNameAndPasswordAuthenticationFilter;
@@ -48,8 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-//                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//                .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -58,9 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/**", "index", "/css/*", "/js/*", "/register").permitAll()
                 .anyRequest()
-                .authenticated()
-                .and()
-        ;
+                .authenticated();
     }
 
     @Bean
@@ -79,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(daoAuthenticationProvider());
     }
 
@@ -89,6 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         provider.setPasswordEncoder(passwordEncoder);
         provider.setUserDetailsService(userService);
+
         return provider;
     }
 

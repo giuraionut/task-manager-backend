@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NotificationService {
@@ -20,7 +21,8 @@ public class NotificationService {
     }
 
     public List<Notification> getAll(String receiverId) {
-        return this.notificationRepository.findNotificationByReceiverId(receiverId).orElseThrow(() -> new IllegalStateException("Receiver ID " + receiverId + " does not exists"));
+        Optional<List<Notification>> notificationByReceiverId = this.notificationRepository.findNotificationByReceiverId(receiverId);
+        return notificationByReceiverId.orElse(null);
     }
 
     public void delete(Notification notification) {

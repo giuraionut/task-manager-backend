@@ -10,13 +10,14 @@ public class Task {
     private String id;
 
     private String teamId;
-
     private String name;
     private String details;
-    private boolean isOpen = true;
+
     private String lastUserId;
     private String authorId;
     private String responsibleId;
+
+    private boolean isOpen = true;
     private boolean isAssigned = false;
     private boolean isPrivate = false;
 }

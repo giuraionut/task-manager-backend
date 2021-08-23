@@ -17,7 +17,9 @@ public class Team {
     @Indexed(unique = true)
     private String name;
 
+    @Indexed(unique = true)
     private String authorId;
+
     private Set<String> membersId;
 
 }

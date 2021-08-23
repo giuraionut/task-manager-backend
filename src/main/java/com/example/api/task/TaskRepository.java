@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface TaskRepository extends MongoRepository<Task, String> {
 
     Optional<List<Task>> findTaskByResponsibleId(String responsibleId);
+
     Integer countByResponsibleIdAndIsPrivateAndIsOpen(String responsibleId, Boolean isPrivate, Boolean isOpen);
 
     Optional<List<Task>> findTaskByTeamId(String teamId);

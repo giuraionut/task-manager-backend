@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,27 +42,20 @@ public class TaskService {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------------------------------------------
-
     public boolean exists(String taskId) {
         return this.taskRepository.findById(taskId).isPresent();
     }
 
     //------------------------------------------------------------------------------------------------------------------
     public Task getTask(String taskId) {
-        return taskRepository.findById(taskId).orElseThrow(() -> new IllegalStateException("Task with id " + taskId + " does not exists!"));
+        Optional<Task> taskById = taskRepository.findById(taskId);
+        return taskById.orElse(null);
     }
 
     //------------------------------------------------------------------------------------------------------------------
     public List<Task> getPrivateTasks(String userId) {
-
-        List<Task> tasksByUser = taskRepository.findTaskByResponsibleId(userId)
-                .orElseThrow(() -> new IllegalStateException("User with id " + userId + " has no private tasks"));
-
-        return tasksByUser.stream().filter(Task::isPrivate).collect(Collectors.toList());
+        Optional<List<Task>> taskByResponsibleId = taskRepository.findTaskByResponsibleId(userId);
+        return taskByResponsibleId.map(tasks -> tasks.stream().filter(Task::isPrivate).collect(Collectors.toList())).orElse(null);
     }
 
     public Integer countTasks(String responsibleId, String type, String state) {
@@ -70,6 +63,7 @@ public class TaskService {
     }
 
     public List<Task> getTaskByTeam(String teamId) {
-        return this.taskRepository.findTaskByTeamId(teamId).orElseThrow(() -> new IllegalStateException("No tasks for team"));
+        Optional<List<Task>> taskByTeamId = this.taskRepository.findTaskByTeamId(teamId);
+        return taskByTeamId.orElse(null);
     }
 }

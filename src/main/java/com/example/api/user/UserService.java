@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,8 +34,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User getByRefreshToken(String refreshToken) {
-        System.out.println(refreshToken);
-        return this.userRepository.findUserByRefreshToken(refreshToken).orElseThrow(() -> new IllegalStateException(String.format("Token %s invalid", refreshToken)));
+        Optional<User> userByRefreshToken = this.userRepository.findUserByRefreshToken(refreshToken);
+        return userByRefreshToken.orElse(null);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -67,12 +68,6 @@ public class UserService implements UserDetailsService {
 
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
-    public void update(User user) {
-        this.userRepository.save(user);
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-    @Transactional
     public void setTeamId(String userId, String teamId) {
         User user = getUserById(userId);
         user.setTeamId(teamId);
@@ -97,7 +92,9 @@ public class UserService implements UserDetailsService {
 
     //------------------------------------------------------------------------------------------------------------------
     public User getUserById(String userId) {
-        return this.userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User with id " + userId + " not found!"));
+        Optional<User> userById = this.userRepository.findById(userId);
+        return userById.orElse(null);
+
     }
 
     //------------------------------------------------------------------------------------------------------------------

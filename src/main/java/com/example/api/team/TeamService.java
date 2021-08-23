@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -25,7 +26,12 @@ public class TeamService {
 
     //------------------------------------------------------------------------------------------------------------------
     public boolean exists(String teamId) {
-        return this.teamRepository.findById(teamId).isPresent();
+        if(teamId != null) {
+            return this.teamRepository.findById(teamId).isPresent();
+        }
+        else{
+            return false;
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -39,7 +45,8 @@ public class TeamService {
 
     //------------------------------------------------------------------------------------------------------------------
     public Team getTeam(String teamId) {
-        return this.teamRepository.findById(teamId).orElseThrow(() -> new IllegalStateException("Team with id " + teamId + " does not exists!"));
+        Optional<Team> teamById = this.teamRepository.findById(teamId);
+        return teamById.orElse(null);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -68,15 +75,11 @@ public class TeamService {
         team.setMembersId(membersId);
         this.teamRepository.save(team);
     }
+
     //------------------------------------------------------------------------------------------------------------------
-
-    public Set<String> getMembers(String teamId) {
-        Team team = getTeam(teamId);
-        return team.getMembersId();
-    }
-
     public Team getTeamByAuthor(String authorId)
     {
-        return this.teamRepository.findByAuthorId(authorId).orElseThrow(() -> new IllegalStateException("Team with authorId " + authorId + " does not exists!"));
+        Optional<Team> teamByAuthorId = this.teamRepository.findByAuthorId(authorId);
+        return teamByAuthorId.orElse(null);
     }
 }

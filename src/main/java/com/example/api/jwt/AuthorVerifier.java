@@ -23,6 +23,7 @@ public class AuthorVerifier {
 
 
     public AuthorVerifier(HttpServletRequest request, SecretKey secretKey) {
+
         Cookie[] cookies = request.getCookies();
 
         if (cookies.length == 0) {

@@ -25,8 +25,6 @@ public class NotificationController {
     public ResponseEntity<Object> post(@RequestBody TeamInvitation notification) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
-
-
         response.setError("none");
         response.setMessage("Notification added successfully");
         response.setStatus(HttpStatus.OK);
@@ -58,7 +56,9 @@ public class NotificationController {
     public ResponseEntity<Object> delete(HttpServletRequest request, @RequestBody TeamInvitation notification) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
+
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, notification.getReceiverId());
+
         response.setError("none");
         response.setStatus(HttpStatus.OK);
         response.setMessage("Notification dismissed successfully");

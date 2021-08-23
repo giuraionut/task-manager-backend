@@ -37,8 +37,14 @@ public class TeamController {
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         String requesterId = authorVerifier.getRequesterId();
+        User user = this.userService.getUserById(requesterId);
+
         if (this.teamService.nameExists(team.getName())) {
             response.setMessage("Team with name " + "'" + team.getName() + "'" + " already exists");
+            response.setError("duplicate found");
+        }
+        if (user.getTeamId() != null) {
+            response.setMessage("You already have a team");
             response.setError("duplicate found");
         } else {
             response.setMessage("Team with name " + "'" + team.getName() + "'" + " created successfully");
@@ -59,9 +65,16 @@ public class TeamController {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
+
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         User leader = this.userService.getUserById(authorVerifier.getRequesterId());
+
         if (this.teamService.exists(leader.getTeamId())) {
+            Team team = this.teamService.getTeam(leader.getTeamId());
+
+            Set<String> teamMembersId = team.getMembersId();
+            teamMembersId.forEach(this.userService::deleteTeam);
+
             this.teamService.deleteTeam(leader.getTeamId());
             this.userService.deleteTeam(leader.getId());
             response.setMessage("Team delete successfully");
@@ -80,9 +93,12 @@ public class TeamController {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
+
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         User user = this.userService.getUserById(authorVerifier.getRequesterId());
+
         if (this.teamService.exists(user.getTeamId())) {
+
             Team team = this.teamService.getTeam(user.getTeamId());
             response.setMessage("Team obtained successfully");
             response.setError("none");
@@ -105,6 +121,12 @@ public class TeamController {
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         String requesterId = authorVerifier.getRequesterId();
 
+        if (!this.teamService.exists(teamId)) {
+            response.setError("team not found");
+            response.setMessage("Team does not exists");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         Team team = this.teamService.getTeam(teamId);
 
         this.userService.setTeamId(requesterId, team.getId());
@@ -123,13 +145,23 @@ public class TeamController {
 
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
+
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         String authorId = authorVerifier.getRequesterId();
+        User leader = this.userService.getUserById(authorId);
+
+        if (!this.teamService.exists(leader.getTeamId())) {
+            response.setError("team not found");
+            response.setMessage("Team does not exists");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         Team team = this.teamService.getTeamByAuthor(authorId);
+
         if (this.userService.exists(userId)) {
-            response.setStatus(HttpStatus.OK);
             this.userService.deleteTeam(userId);
             this.teamService.removeMembers(team, userId);
+            response.setStatus(HttpStatus.OK);
             response.setError("none");
             response.setMessage("User kicked successfully");
         } else {
@@ -152,7 +184,20 @@ public class TeamController {
         User requester = this.userService.getUserById(requesterId);
 
         String teamId = requester.getTeamId();
+
+        if (!this.teamService.exists(requester.getTeamId())) {
+            response.setError("team not found");
+            response.setMessage("Team does not exists");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         Team team = this.teamService.getTeam(teamId);
+
+        if (team == null) {
+            response.setError("team not found");
+            response.setMessage("Team does not exists");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
         Set<String> membersId = team.getMembersId();
 
         if (!membersId.isEmpty()) {
@@ -172,6 +217,4 @@ public class TeamController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 }

@@ -60,6 +60,7 @@ public class UserController {
         response.setStatus(HttpStatus.OK);
         response.setError("none");
         response.setMessage("Signed out successfully");
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -70,6 +71,7 @@ public class UserController {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
+        
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         if (this.userService.exists(authorVerifier.getRequesterId())) {
             response.setMessage("Name changed successfully");

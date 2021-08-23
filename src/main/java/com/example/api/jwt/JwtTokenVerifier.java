@@ -53,7 +53,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
                     .findFirst().map(Cookie::getValue).orElse(null);
 
         } catch (Exception ex) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN,"token not found");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "token not found");
             return;
         }
         try {
@@ -64,7 +64,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
             Claims body = claimsJws.getBody();
             String username = body.getSubject();
 
-            var authorities = (List<Map<String, String>>) body.get("authorities");
+            List<Map<String, String>> authorities = (List<Map<String, String>>) body.get("authorities");
 
             Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()
                     .map(m -> new SimpleGrantedAuthority(m.get("authority"))).collect(Collectors.toSet());
@@ -77,7 +77,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException e) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN,"token " + token + " cannot be trusted");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "token " + token + " cannot be trusted");
             return;
         }
         filterChain.doFilter(request, response);

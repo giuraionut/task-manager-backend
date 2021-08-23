@@ -111,8 +111,10 @@ public class TaskController {
         response.setMessage("Task [" + type + " " + state + "] quantity obtained successfully");
         response.setError("none");
         response.setStatus(HttpStatus.OK);
+
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         Integer quantity = this.taskService.countTasks(authorVerifier.getRequesterId(), type, state);
+
         response.setPayload(quantity);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -127,6 +129,7 @@ public class TaskController {
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
         List<Task> tasks = this.taskService.getPrivateTasks(authorVerifier.getRequesterId());
+
         if (!tasks.isEmpty()) {
             response.setMessage("Tasks [private] obtained successfully");
             response.setError("none");
@@ -138,7 +141,7 @@ public class TaskController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    //------------------------------------------------------------------------------------------------------------------
     @GetMapping(path = "public")
     @PreAuthorize("hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
     public ResponseEntity<Object> getPublicTasks(HttpServletRequest request) {
@@ -147,15 +150,20 @@ public class TaskController {
         response.setStatus(HttpStatus.OK);
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-
         String requesterId = authorVerifier.getRequesterId();
         User user = this.userService.getUserById(requesterId);
-        String teamId = user.getTeamId();
-        List<Task> taskByTeam = this.taskService.getTaskByTeam(teamId);
 
-        response.setMessage("Team tasks obtained successfully");
-        response.setError("none");
-        response.setPayload(taskByTeam);
+        String teamId = user.getTeamId();
+        if (teamId != null) {
+            List<Task> taskByTeam = this.taskService.getTaskByTeam(teamId);
+
+            response.setMessage("Team tasks obtained successfully");
+            response.setError("none");
+            response.setPayload(taskByTeam);
+        } else {
+            response.setMessage("User is not part of a team");
+            response.setError("no team found");
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -169,8 +177,8 @@ public class TaskController {
         response.setStatus(HttpStatus.OK);
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-
         String requesterId = authorVerifier.getRequesterId();
+
         if (requesterId != null) {
             Task newTask = this.taskService.createTask(task, requesterId, requesterId);
             response.setError("none");
@@ -233,7 +241,7 @@ public class TaskController {
                 taskService.deleteTask(task);
             } else {
                 response.setError("not authorized");
-                response.setMessage("Can't delete other tasks");
+                response.setMessage("Can't delete other people's tasks");
             }
         } else {
             response.setError("not found");
@@ -252,7 +260,6 @@ public class TaskController {
         response.setStatus(HttpStatus.OK);
 
         if (this.taskService.exists(task.getId())) {
-
             Task originalTask = this.taskService.getTask(task.getId());
 
             String authorId = originalTask.getAuthorId();
@@ -273,6 +280,5 @@ public class TaskController {
             response.setMessage("Task does not exists");
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 }
