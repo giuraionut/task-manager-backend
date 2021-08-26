@@ -1,6 +1,7 @@
 package com.example.api.team;
 
 import com.example.api.jwt.AuthorVerifier;
+import com.example.api.misc.MiscService;
 import com.example.api.response.Response;
 import com.example.api.security.UserRole;
 import com.example.api.user.User;
@@ -10,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,7 @@ public class TeamController {
 
     private final TeamService teamService;
     private final UserService userService;
+    private final MiscService miscService;
     private final SecretKey secretKey;
 
     //------------------------------------------------------------------------------------------------------------------
@@ -217,4 +221,29 @@ public class TeamController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PutMapping(path = "avatar")
+    @PreAuthorize("hasAuthority('ROLE_LEADER')")
+    public ResponseEntity<Object> uploadAvatar(@RequestParam("image") MultipartFile image, HttpServletRequest request) throws IOException {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+        if (this.userService.exists(authorVerifier.getRequesterId())) {
+            User user = this.userService.getUserById(authorVerifier.getRequesterId());
+            String path = this.miscService.uploadImage(image, "team", user.getTeamId());
+            if (!path.equals("error")) {
+                this.teamService.setAvatar(user.getTeamId(), path);
+                response.setError("none");
+                response.setMessage("Image uploaded successfully");
+                response.setPayload(path);
+            } else {
+                response.setError("path creation failed");
+                response.setMessage("Failed to create the path for the uploaded image");
+            }
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

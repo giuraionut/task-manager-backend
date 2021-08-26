@@ -22,4 +22,5 @@ public class Team {
 
     private Set<String> membersId;
 
+    private String avatar;
 }

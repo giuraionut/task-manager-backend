@@ -76,6 +76,14 @@ public class TeamService {
         this.teamRepository.save(team);
     }
 
+    @Transactional
+    public void setAvatar(String teamId, String path)
+    {
+        Team team = getTeam(teamId);
+        team.setAvatar(path);
+        this.teamRepository.save(team);
+    }
+
     //------------------------------------------------------------------------------------------------------------------
     public Team getTeamByAuthor(String authorId)
     {

@@ -71,7 +71,14 @@ public class UserService implements UserDetailsService {
     public void setTeamId(String userId, String teamId) {
         User user = getUserById(userId);
         user.setTeamId(teamId);
-        userRepository.save(user);
+        this.userRepository.save(user);
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    @Transactional
+    public void setAvatar(String userId, String path) {
+        User user = getUserById(userId);
+        user.setAvatar(path);
+        this.userRepository.save(user);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -79,7 +86,7 @@ public class UserService implements UserDetailsService {
     public void setGrantedAuthorities(String userId, Set<SimpleGrantedAuthority> authorities) {
         User user = getUserById(userId);
         user.setGrantedAuthorities(authorities);
-        userRepository.save(user);
+        this.userRepository.save(user);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -87,7 +94,7 @@ public class UserService implements UserDetailsService {
         User user = getUserById(userId);
         user.setTeamId(null);
         user.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
-        userRepository.save(user);
+        this.userRepository.save(user);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -102,7 +109,7 @@ public class UserService implements UserDetailsService {
     public void changeName(User user, String userId) {
         User changedUser = getUserById(userId);
         changedUser.setUsername(user.getUsername());
-        userRepository.save(changedUser);
+        this.userRepository.save(changedUser);
     }
     //------------------------------------------------------------------------------------------------------------------
 }
