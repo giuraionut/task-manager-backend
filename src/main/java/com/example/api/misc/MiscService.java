@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
 
 @Service
 public class MiscService {
@@ -32,7 +31,7 @@ public class MiscService {
             System.out.println("Avatar directory created");
             byte[] avatarBytes = image.getBytes();
 
-            String imagePath = "../.." + avatarPath.substring(avatarPath.lastIndexOf("/assets"));
+            String imagePath = "../.." + avatarPath.substring(avatarPath.lastIndexOf("/assets")) + "/";
             String imageNewName = id + "_avatar." + FilenameUtils.getExtension(image.getOriginalFilename());
             String path = avatarPath + "/" + imageNewName;
             String dbPath = imagePath + imageNewName;
