@@ -26,10 +26,9 @@ public class TeamService {
 
     //------------------------------------------------------------------------------------------------------------------
     public boolean exists(String teamId) {
-        if(teamId != null) {
+        if (teamId != null) {
             return this.teamRepository.findById(teamId).isPresent();
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -40,6 +39,7 @@ public class TeamService {
         Set<String> membersId = new HashSet<>();
         membersId.add(leaderId);
         team.setMembersId(membersId);
+        team.setAvatar("../../assets/team_avatar/default_team_avatar.jpg");
         return this.teamRepository.insert(team);
     }
 
@@ -47,6 +47,11 @@ public class TeamService {
     public Team getTeam(String teamId) {
         Optional<Team> teamById = this.teamRepository.findById(teamId);
         return teamById.orElse(null);
+    }
+
+    @Transactional
+    public void updateTeam(Team team) {
+        this.teamRepository.save(team);
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -77,16 +82,14 @@ public class TeamService {
     }
 
     @Transactional
-    public void setAvatar(String teamId, String path)
-    {
+    public void setAvatar(String teamId, String path) {
         Team team = getTeam(teamId);
         team.setAvatar(path);
         this.teamRepository.save(team);
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    public Team getTeamByAuthor(String authorId)
-    {
+    public Team getTeamByAuthor(String authorId) {
         Optional<Team> teamByAuthorId = this.teamRepository.findByAuthorId(authorId);
         return teamByAuthorId.orElse(null);
     }

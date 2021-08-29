@@ -1,12 +1,15 @@
 package com.example.api.task;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,8 +65,9 @@ public class TaskService {
         return this.taskRepository.countByResponsibleIdAndIsPrivateAndIsOpen(responsibleId, type.equals("private"), state.equals("open"));
     }
 
-    public List<Task> getTaskByTeam(String teamId) {
-        Optional<List<Task>> taskByTeamId = this.taskRepository.findTaskByTeamId(teamId);
-        return taskByTeamId.orElse(null);
+    public List<Task> getTasksByTeam(Set<String> tasksId) {
+        List<Task> tasks = new ArrayList<>();
+        tasksId.forEach(taskId -> this.taskRepository.findById(taskId).ifPresent(tasks::add));
+        return tasks;
     }
 }

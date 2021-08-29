@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "task")
@@ -38,13 +41,15 @@ public class TaskController {
 
         if (this.taskService.exists(task.getId())) {
             String authorId = this.taskService.getTask(task.getId()).getAuthorId();
-
+            User leader = this.userService.getUserById(authorId);
             AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey, authorId);
-
+            Team team = this.teamService.getTeam(leader.getTeamId());
             if (authorVerifier.isValid()) {
                 response.setError("none");
                 response.setMessage("Task deleted successfully");
                 this.taskService.deleteTask(task);
+                team.setTasksId(team.getTasksId().stream().filter(taskId -> !taskId.equals(task.getId())).collect(Collectors.toSet()));
+                this.teamService.updateTeam(team);
             } else {
                 response.setError("not authorized");
                 response.setMessage("Can't delete other tasks");
@@ -155,11 +160,18 @@ public class TaskController {
 
         String teamId = user.getTeamId();
         if (teamId != null) {
-            List<Task> taskByTeam = this.taskService.getTaskByTeam(teamId);
-
-            response.setMessage("Team tasks obtained successfully");
-            response.setError("none");
-            response.setPayload(taskByTeam);
+            Team team = this.teamService.getTeam(teamId);
+            Set<String> tasksId;
+            if (team.getTasksId() != null) {
+                tasksId = team.getTasksId();
+                List<Task> tasksByTeam = this.taskService.getTasksByTeam(tasksId);
+                response.setMessage("Team tasks obtained successfully");
+                response.setError("none");
+                response.setPayload(tasksByTeam);
+            } else {
+                response.setMessage("No tasks");
+                response.setError("none");
+            }
         } else {
             response.setMessage("User is not part of a team");
             response.setError("no team found");
@@ -201,12 +213,21 @@ public class TaskController {
         response.setStatus(HttpStatus.OK);
 
         AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
-        String requesterId = authorVerifier.getRequesterId();
-        Team team = this.teamService.getTeamByAuthor(requesterId);
+        String leaderId = authorVerifier.getRequesterId();
+        Team team = this.teamService.getTeamByAuthor(leaderId);
 
-        if (requesterId != null) {
+        if (leaderId != null) {
             if (team.getMembersId().contains(userId)) {
-                Task newTask = this.taskService.createTask(task, userId, requesterId);
+                Task newTask = this.taskService.createTask(task, userId, leaderId);
+                Set<String> tasksId;
+                if (team.getTasksId() == null) {
+                    tasksId = new HashSet<>();
+                } else {
+                    tasksId = team.getTasksId();
+                }
+                tasksId.add(newTask.getId());
+                team.setTasksId(tasksId);
+                this.teamService.updateTeam(team);
                 response.setError("none");
                 response.setMessage("Task created successfully");
                 response.setPayload(newTask);

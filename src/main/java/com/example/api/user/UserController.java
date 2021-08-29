@@ -112,7 +112,7 @@ public class UserController {
     }
 
     @GetMapping(path = "{userId}")
-    @PreAuthorize("hasAuthority('ROLE_LEADER') or hasAuthority('ROLE_MEMBER')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_LEADER') or hasAuthority('ROLE_MEMBER')")
     public ResponseEntity<Object> getUserInfo(@PathVariable("userId") String userId) {
         Response response = new Response();
         response.setTimestamp(LocalDateTime.now());

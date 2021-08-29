@@ -63,6 +63,7 @@ public class UserService implements UserDetailsService {
         newUser.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
         newUser.setTeamId(null);
         newUser.setRefreshToken(UUID.randomUUID().toString());
+        newUser.setAvatar("../../assets/user_avatar/default_male_avatar.jpg");
         this.userRepository.insert(newUser);
     }
 
