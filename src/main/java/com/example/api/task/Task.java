@@ -9,9 +9,10 @@ public class Task {
     @Id
     private String id;
 
-    //private String teamId;
+
     private String name;
     private String details;
+    private String priority;
 
     private String lastUserId;
     private String authorId;
