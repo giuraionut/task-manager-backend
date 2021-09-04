@@ -34,6 +34,12 @@ public class UserController {
         response.setTimestamp(LocalDateTime.now());
         response.setStatus(HttpStatus.OK);
 
+        String checkUser = this.userService.checkUserReg(newUser);
+        if (!checkUser.equals("ok")) {
+            response.setMessage(checkUser);
+            response.setError("invalid user");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
         if (this.userService.emailExists(newUser) || this.userService.usernameExists(newUser)) {
             response.setMessage("Email or username already exists");
             response.setError("duplicate found");
@@ -141,7 +147,7 @@ public class UserController {
         if (this.userService.exists(authorVerifier.getRequesterId())) {
             String path = this.miscService.uploadImage(image, "user", authorVerifier.getRequesterId());
             if (!path.equals("error")) {
-                this.userService.setAvatar(authorVerifier.getRequesterId(),path);
+                this.userService.setAvatar(authorVerifier.getRequesterId(), path);
                 response.setError("none");
                 response.setMessage("Image uploaded successfully");
                 response.setPayload(path);

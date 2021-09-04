@@ -74,6 +74,7 @@ public class UserService implements UserDetailsService {
         user.setTeamId(teamId);
         this.userRepository.save(user);
     }
+
     //------------------------------------------------------------------------------------------------------------------
     @Transactional
     public void setAvatar(String userId, String path) {
@@ -112,5 +113,19 @@ public class UserService implements UserDetailsService {
         changedUser.setUsername(user.getUsername());
         this.userRepository.save(changedUser);
     }
+
     //------------------------------------------------------------------------------------------------------------------
+    public String checkUserReg(User user) {
+        if (user.getUsername().isEmpty()) {
+            return "no username";
+        }
+        if (user.getEmail().isEmpty()) {
+            return "no email";
+
+        }
+        if (user.getPassword().isEmpty()) {
+            return "no password";
+        }
+        return "ok";
+    }
 }
