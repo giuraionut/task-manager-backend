@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "team")
@@ -246,4 +248,29 @@ public class TeamController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping(path = "leave")
+    @PreAuthorize("hasAuthority('ROLE_MEMBER')")
+    public ResponseEntity<Object> leaveTeam(HttpServletRequest request) {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+        if (this.userService.exists(authorVerifier.getRequesterId())) {
+            User user = this.userService.getUserById(authorVerifier.getRequesterId());
+            Team team = this.teamService.getTeam(user.getTeamId());
+            user.setTeamId(null);
+            user.setGrantedAuthorities(UserRole.USER.getGrantedAuthorities());
+
+            this.userService.updateUser(user);
+            team.setMembersId(team.getMembersId().stream().filter(memberId -> !Objects.equals(memberId, user.getId())).collect(Collectors.toSet()));
+            this.teamService.updateTeam(team);
+            response.setError("none");
+            response.setMessage("You left the team successfully");
+        } else {
+            response.setError("not found");
+            response.setMessage("User does not exists");
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

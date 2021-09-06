@@ -128,4 +128,9 @@ public class UserService implements UserDetailsService {
         }
         return "ok";
     }
+
+    public void updateUser(User user) {
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        this.userRepository.save(user);
+    }
 }

@@ -159,4 +159,34 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping(path = "update")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_MEMBER') or hasAuthority('ROLE_LEADER')")
+    public ResponseEntity<Object> updateUser(@RequestBody User user, HttpServletRequest request)
+    {
+        Response response = new Response();
+        response.setTimestamp(LocalDateTime.now());
+        response.setStatus(HttpStatus.OK);
+
+        AuthorVerifier authorVerifier = new AuthorVerifier(request, secretKey);
+
+        if(this.userService.exists(authorVerifier.getRequesterId()))
+        {
+            User requester = this.userService.getUserById(authorVerifier.getRequesterId());
+            requester.setUsername(user.getUsername());
+            requester.setPassword(user.getPassword());
+            requester.setEmail(user.getEmail());
+            requester.setAboutMe(user.getAboutMe());
+            response.setError("none");
+            response.setMessage("User updated successfully");
+            this.userService.updateUser(requester);
+        }
+        else
+        {
+            response.setError("not found");
+            response.setMessage("Failed to update user because no user found");
+        }
+
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
 }
