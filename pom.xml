@@ -125,7 +125,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>taskmanager-backend</finalName>
+		<finalName>task-manager-backend</finalName>
 	</build>
 
 </project>
