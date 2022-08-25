@@ -10,7 +10,7 @@
 
 
 # Installation
-@@ -20,71 +17,17 @@ To install the project follow this tutorial.
+To install the project follow this tutorial.
 
 * Go to **Code** -> **Download ZIP** or use `git clone` from command prompt (`git clone https://github.com/giuraionut/task-manager.git`)
 
