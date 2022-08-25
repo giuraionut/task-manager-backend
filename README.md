@@ -78,7 +78,3 @@ Now you should have 3 images, for frontend, backend and for mongo and 3 containe
   * Chat history is saved in the database.
   * Notifications are saved in the database.
 * Allows file (image for avatar) upload.
-
-## Frontend features
-* Form validation for user input.
-* Responsive interface suited for desktop and mobile devices.
